@@ -1,0 +1,138 @@
+% !TEX encoding = UTF-8 Unicode
+% !TEX TS-program = LuaLaTeX
+\documentclass[DIV=calc,BCOR=0mm,pagesize]{scrartcl}
+% [headinclude] includes header in Satzspiegelberechnung
+% [headlines] gives vsize of header, default is 1.25
+% [pagesize] ensures compatibility with PDF and DVI
+
+%*****************PACKAGES IN USE******************
+\usepackage{fourier}  % use Fourier for maths
+\usepackage{ttjenevers}  % use TT Jenevers for rm
+\usepackage{ttcommons}  % use TT Commons for sf
+\setmonofont[Scale=MatchLowercase]{Envy Code R}  % use Envy Code R for tt
+\usepackage[defaultlines=2,all]{nowidow}  % prevent widow and orphan lines
+\usepackage{graphicx}  % required to insert images
+\usepackage[usenames,dvipsnames]{xcolor}  % required for custom colours
+\usepackage{amsmath,amssymb}  % better maths support & more symbols
+\usepackage{microtype}  % improved typography
+\usepackage[singlespacing]{setspace}  % improved linespacing
+\usepackage{lipsum}  % blind text
+\usepackage{tabularx}  % more spacing options for tables
+\usepackage{booktabs}  % improved tables
+\usepackage{enumitem}  % enumerate environment, custom list labels
+\usepackage{localextra}  % provides hyphenation for linguistic terms, names, etc.
+\usepackage{natbib}  % use Harvard citation style
+	\bibliographystyle{newharvard}
+%**************************************************
+
+%*******************KOMA-Options*******************
+% \KOMAoptions{parskip=half,headsepline,footsepline}  % example use
+% [parskip=half] separates subsections by 0.5 lines
+% [headsepline,headtopline,footsepline] put lines after header & before footer <-- does NOT work with \pagestyle{plain.scrheadings}
+%**************************************************
+
+%**************Customise Font Formats**************
+% \addtokomafont{pageheadfoot}{\sffamily\upshape}  % example use
+% \setkomafont{author}{\sffamily\footnotesize}  % example use
+\addtokomafont{author}{\sffamily\addfontfeature{Style=Alternate}}
+\setkomafont{disposition}{\ttcdemibold\addfontfeature{Numbers=Lining}}
+% Elements on page 60 of (German) KOMA manual
+%**************************************************
+
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\abm}{\textsc{abm}}
+\newcommand{\lsg}{\textsc{lsg}}
+\newcommand{\odd}{\textsc{odd}}
+
+\title{Brief Article}
+\author{Marcel Ruland}
+\date{hand-in date: \today}  % omit date
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+\label{sec:int}
+A \emph{Lewis signalling game} (henceforth \lsg), following \citet[p.~530ff.]{barrett_dynamic_2007}, works as follows:
+There is a set of states of the world \(S\), a set of signals (or terms) \(T\), and a set of acts \(A\).
+There is a mapping from acts to states of the world, such that every act corresponds to a state of the world.
+\citet{barrett_dynamic_2007} leaves unclear if that mapping must be bijective (for every \(a\) there is exactly one corresponding \(s\) and for every \(s\) there is at least one corresponding \(a\)), but every signalling game involved in this essay fulfils this condition.
+There is a \emph{sender}, who can observe the current state of the world and a \emph{receiver,} who cannot observe the current state of the world.
+In each round exactly one state of the world \(s \in S\) holds, i.e.~is the current state of the world.
+The sender will observe the current state of the world and then choose a signal \(t \in T\) and send it to the receiver.
+The receiver will observe the signal and then perform an act \(a \in A\).
+A round is won if the act \(a\) matches the current state of the world \(s\), lost if it does not.
+Both sender and receiver know about whether the round was a success or failure and adapt their strategies for choosing signals and acts according to some learning function.
+Commonly, states of the world are distributed uniformly and sender and receiver start out with randomly choosing a signal and an act respectively, but this is not a formal requirement for the game to count as an \lsg.
+
+
+\emph{Agent-based modelling} (henceforth \abm) is a modelling paradigm that has its roots in cellular automata and complexity theory \citep{heath_some_2014}.
+Following \citet{grimm_individual_2005,railsback_agent_2011} an \abm, there are individual \emph{agents} representing individual entities of one or several kinds (such as for instance cars, sheep, or viruses).
+These entities interact with each other, with an \emph{environment,} or (typically) both.
+The environment itself has characteristics which influence the agents.
+It can play a major role in the simulation (such as a forest providing food and shelter to a population of animals) or be virtually inexistent (as is the case in the present essay, see section~\ref{sec:mod}).
+Typical applications include (but are by far not limited to) the simulation of traffic flow in a road network, spreading of a virus in a population (human or non-human), and changes in real estate prices in a city.
+The strength of \abm, in comparison to other modelling paradigms, is that  by modelling each individual agent, one can observe how the sum of individual actions of agents give rise to phenomena which were not explicitly programmed into the model (such as the creation of ant corridors, which are not intentionally created by any individual ant, but are a byproduct of the fact that ants directly follow each other in straight lines, \citet{netlogo modelling library}).
+
+This essay combines both paradigms.
+An \abm\ will be created where there is a population of senders and a population of receivers.
+Initially the number of signals available will be less than the number of states of the world and actions, but will be increased with time.
+The aim is to determine how the time at or the condition on which more symbols will be made available influences the speed of convergence towards \emph{perfect communication.}
+Perfect communication in an \lsg\ is achieved if ``each state of the world corresponds to a term in the language and each term corresponds to an act that matches the state of the world, so each signal leads to a successful action'' \citep[p.~530, there referred to as ``perfect Lewis signalling system'']{barrett_dynamic_2007}.
+
+
+\section{Model description}
+\label{sec:mod}
+The description of the model follows the \emph{Overview, Design concepts, and Details} protocol \citep[][henceforth \odd]{grimm_standard_2006, grimm_odd_2010}.
+
+\subsection{Purpose}
+\label{ssec:modpur}
+The model is run to understand how, based on elapsed time and/or other conditions, increasing the number of symbols available in an \lsg\ accelerates or slows down convergence towards perfect communication.
+
+\subsection{Entities, state variables, and scales}
+\label{ssec:modent}
+There are two entities, \code{senders} and \code{receivers}, the populations of which are equal in size.
+The \code{senders}
+
+
+\subsection{Process overview and scheduling}
+\label{ssec:modpro}
+In every iteration, a randomised one-to-one mapping from senders to receivers is created.  % create by shuffling array of length n with integers 1 to n
+Senders then interact with their corresponding receiver.
+The order of the interactions is randomised.
+
+\subsection{Design concepts}
+\label{ssec:moddes}
+\subsubsection{Basic principles}
+\subsubsection{Emergence}
+\subsubsection{Adaptation}
+\subsubsection{Objectives}
+\subsubsection{Learning}
+\subsubsection{Prediction}
+\subsubsection{Sensing}
+\subsubsection{Interaction}
+\subsubsection{Stochasticity}
+\subsubsection{Collectives}
+\subsubsection{Observation}
+
+\subsection{Initialisation}
+\label{ssec:modini}
+
+\subsection{Input data}
+\label{ssec:modinp}
+
+\subsection{Submodels}
+\label{ssec:modsub}
+
+\section{Results}
+\label{sec:res}
+
+\section{Discussion}
+\label{sec:dis}
+
+
+\newpage\twocolumn\recalctypearea
+\bibliography{standard}  % insert bibliography
+\end{document}
