@@ -2,11 +2,17 @@ breed [ senders sender ]
 breed [ receivers receiver ]
 
 globals [
-  num-world-states
-  population-size
-  world-state
-  signals
+  ; model logic
+  num-world-states  ; number of possible world states
+  population-size  ; size of sender population and size of receiver population
+  world-state  ; current state f the world
+  signals  ; available signals
+
+  ; turtle visual
   turtle-size
+  turtle-shape
+  turtle-color
+  turtle-heading
 ]
 
 senders-own [
@@ -33,6 +39,7 @@ to go
   senders-consult-urn
   senders-send-signal
   receivers-consult-urn
+  receivers-perform-action
   ifelse action-match-state?
     [ add-ball ]
     [ remove-ball ]
@@ -40,14 +47,21 @@ end
 
 
 to initialise-globals
+  ; model logic
   set num-world-states 10
   set population-size 10
-  set turtle-size 3
+
+  ; turtle visual
+  set turtle-size 2.5
+  set turtle-shape "arrow"
+  set turtle-color 0
+  set turtle-heading 90
 end
 
 
 to set-random-world-state
   set world-state random num-world-states
+  ; set patc colour according to current world state
   let bg-color world-state * 10 + 5
   ask patches [
     set pcolor bg-color
@@ -56,23 +70,27 @@ end
 
 
 to create-population
+  ; calculate good visual placement
   let turtle-distance world-height / population-size
   let turtle-y (world-height - 1) / 2 - 1
+
+  ; create senders with incrementing y-placement
   let sender-y turtle-y
   create-senders population-size [
     setxy -14 sender-y
-    set size 2.5
-    set shape "arrow"
-    set color 0
-    set heading 90
+    set size turtle-size
+    set shape turtle-shape
+    set color turtle-color
+    set heading turtle-heading
     set label "sender"
     set sender-y sender-y - turtle-distance
   ]
 
+  ; create receivers with incrementing y-placement
   let receiver-y turtle-y
   create-receivers population-size [
     setxy 14 receiver-y
-    set size 2.5
+    set size turtle-size
     set shape "arrow"
     set color 0
     set heading 90
@@ -95,6 +113,10 @@ end
 
 
 to receivers-consult-urn
+end
+
+
+to receivers-perform-action
 end
 
 
