@@ -1,5 +1,5 @@
 ### NetLogo
-*.tmp.nlogo  # temporaries
+.plc-lsg.tmp.nlogo  # temporary
 
 
 ### TeX
