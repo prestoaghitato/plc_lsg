@@ -1,4 +1,69 @@
+; setup breeds
+breed [ senders sender ]
+breed [ receivers receiver ]
 
+globals [
+  world-states
+  signals
+]
+
+senders-own [
+  urns
+]
+
+receivers-own [
+  urns
+]
+
+
+to setup
+  clear-all
+  reset-ticks
+end
+
+
+to go
+  set-random-world-state
+  create-random-mapping
+  senders-consult-urn
+  senders-send-signal
+  receivers-consult-urn
+  ifelse action-match-state?
+    [ add-ball ]
+    [ remove-ball ]
+end
+
+
+to set-random-world-state
+end
+
+
+to create-random-mapping
+end
+
+
+to senders-consult-urn
+end
+
+
+to senders-send-signal
+end
+
+
+to receivers-consult-urn
+end
+
+
+to-report action-match-state?
+end
+
+
+to add-ball
+end
+
+
+to remove-ball
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
