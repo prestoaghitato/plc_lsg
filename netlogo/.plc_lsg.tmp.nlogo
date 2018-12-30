@@ -29,6 +29,7 @@ to setup
   initialise-globals
   set-random-world-state
   create-population
+  create-world-state-overview-visual
   reset-ticks
 end
 
@@ -74,7 +75,7 @@ to create-population
   let turtle-distance world-height / population-size
   let turtle-y (world-height - 1) / 2 - 1
 
-
+  ; create senders with incrementing y-placement
   let sender-y turtle-y
   create-senders population-size [
     setxy -14 sender-y
@@ -86,6 +87,7 @@ to create-population
     set sender-y sender-y - turtle-distance
   ]
 
+  ; create receivers with incrementing y-placement
   let receiver-y turtle-y
   create-receivers population-size [
     setxy 14 receiver-y
@@ -95,6 +97,25 @@ to create-population
     set heading 90
     set label "receiver"
     set receiver-y receiver-y - turtle-distance
+  ]
+end
+
+
+to create-world-state-overview-visual
+  let label-num 0
+  let size-temp 2
+  ; places the turtles centered, kinda lost track of how this works but it works
+  let x num-world-states / -2 * size-temp + size-temp / 2
+
+  create-turtles num-world-states [
+    setxy x -10
+    set size size-temp
+    set shape "square"
+    set color label-num * 10 + 5
+    set label label-num
+
+    set x x + size-temp
+    set label-num label-num + 1
   ]
 end
 
