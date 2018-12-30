@@ -9,6 +9,8 @@ globals [
   signals  ; available signals
 
   ; turtle visual
+  turtle-distance
+  turtle-y
   turtle-size
   turtle-shape
   turtle-color
@@ -30,6 +32,7 @@ to setup
   set-random-world-state
   create-population
   create-world-state-overview-visual
+  create-random-mapping
   reset-ticks
 end
 
@@ -53,6 +56,8 @@ to initialise-globals
   set population-size 10
 
   ; turtle visual
+  set turtle-distance world-height / population-size
+  set turtle-y (world-height - 1) / 2 - 1
   set turtle-size 2.5
   set turtle-shape "arrow"
   set turtle-color 0
@@ -71,14 +76,11 @@ end
 
 
 to create-population
-  ; calculate good visual placement
-  let turtle-distance world-height / population-size
-  let turtle-y (world-height - 1) / 2 - 1
 
   ; create senders with incrementing y-placement
   let sender-y turtle-y
   create-senders population-size [
-    setxy -14 sender-y
+    setxy -6 sender-y
     set size turtle-size
     set shape turtle-shape
     set color turtle-color
@@ -105,22 +107,33 @@ to create-world-state-overview-visual
   let label-num 0
   let size-temp 2
   ; places the turtles centered, kinda lost track of how this works but it works
-  let x num-world-states / -2 * size-temp + size-temp / 2
+  let y num-world-states / 2 * size-temp + size-temp / 2
 
   create-turtles num-world-states [
-    setxy x -10
+    setxy -13 y
     set size size-temp
     set shape "square"
     set color label-num * 10 + 5
     set label label-num
-
-    set x x + size-temp
+    set label-color black
+    set y y - size-temp
     set label-num label-num + 1
   ]
 end
 
 
 to create-random-mapping
+  clear-links
+  let mapping n-values num-world-states [ i -> i ]
+  set mapping shuffle mapping
+  let  num-world-states
+  foreach mapping [ mapp ->
+    ask turtle temp [
+      create-link-with turtle mapp
+    ]
+    set temp temp + 1
+  ]
+  ask links [ set color black ]
 end
 
 
@@ -165,8 +178,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 -16
 16
