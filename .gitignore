@@ -1,3 +1,9 @@
+### NetLogo
+*.tmp.nlogo  # temporaries
+
+
+### TeX
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof

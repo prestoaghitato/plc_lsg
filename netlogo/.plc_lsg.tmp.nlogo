@@ -23,6 +23,30 @@ to setup
   initialise-globals
   set-random-world-state
   create-population
+
+  let turtle-distance world-height / population-size
+  let turtle-y (world-height - 1) / 2 - 1
+  let sender-y turtle-y
+  create-senders population-size [
+    setxy -14 sender-y
+    set size 2.5
+    set shape "arrow"
+    set color 0
+    set heading 90
+    set label "sender"
+    set sender-y sender-y - turtle-distance
+  ]
+
+  let receiver-y turtle-y
+  create-receivers population-size [
+    setxy 14 receiver-y
+    set size 2.5
+    set shape "arrow"
+    set color 0
+    set heading 90
+    set label "receiver"
+    set receiver-y receiver-y - turtle-distance
+  ]
   reset-ticks
 end
 
@@ -56,30 +80,7 @@ end
 
 
 to create-population
-  let turtle-distance world-height / population-size
-  let turtle-y (world-height - 1) / 2 - 1
-  let sender-y turtle-y
-  create-senders population-size [
-    setxy -14 sender-y
-    set size 2.5
-    set shape "arrow"
-    set color 0
-    set heading 90
-    set label "sender"
-    set sender-y sender-y - turtle-distance
-  ]
-
-  let receiver-y turtle-y
-  create-receivers population-size [
-    setxy 14 receiver-y
-    set size 2.5
-    set shape "arrow"
-    set color 0
-    set heading 90
-    set label "receiver"
-    set receiver-y receiver-y - turtle-distance
-  ]
-end
+  ;
 
 
 to create-random-mapping
