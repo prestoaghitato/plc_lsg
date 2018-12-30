@@ -6,7 +6,7 @@ globals [
   num-world-states  ; number of possible world states
   population-size  ; size of sender population and size of receiver population
   world-state  ; current state f the world
-  signals  ; available signals
+  num-signals  ; number of available signals
 
   ; turtle visual
   turtle-distance
@@ -18,11 +18,11 @@ globals [
 ]
 
 senders-own [
-  urns
+  urns  ; list of lists, has length num-world-states, list in position i is urn for i-th world state
 ]
 
 receivers-own [
-  urns
+  urns  ; similar to senders' variable, list in position i is urn for i-th signal
 ]
 
 
@@ -47,6 +47,7 @@ to go
   ifelse action-match-state?
     [ add-ball ]
     [ remove-ball ]
+  tick
 end
 
 
@@ -54,13 +55,12 @@ to initialise-globals
   ; model logic
   set num-world-states 10
   set population-size 10
+  set num-signals 4
 
   ; turtle visual
   set turtle-distance world-height / population-size
   set turtle-y (world-height - 1) / 2 - 1
-  set turtle-size 2.5
-  set turtle-shape "arrow"
-  set turtle-color 0
+  set turtle-size 2
   set turtle-heading 90
 end
 
@@ -82,11 +82,14 @@ to create-population
   create-senders population-size [
     setxy -6 sender-y
     set size turtle-size
-    set shape turtle-shape
-    set color turtle-color
+    set shape "arrow"
+    set color black
     set heading turtle-heading
-    set label "sender"
+    set label word breed word " " who
     set sender-y sender-y - turtle-distance
+
+    let initial-urn n-values num-signals [i -> i]
+    set urns n-values num-world-states [initial-urn]
   ]
 
   ; create receivers with incrementing y-placement
@@ -94,10 +97,10 @@ to create-population
   create-receivers population-size [
     setxy 14 receiver-y
     set size turtle-size
-    set shape "arrow"
-    set color 0
+    set shape "target"
+    set color gray
     set heading 90
-    set label "receiver"
+    set label word breed word " " who
     set receiver-y receiver-y - turtle-distance
   ]
 end
@@ -106,7 +109,7 @@ end
 to create-world-state-overview-visual
   let label-num 0
   let size-temp 2
-  ; places the turtles centered, kinda lost track of how this works but it works
+  ; places the turtles centered, kinda lost track of how this works but it works  ; EDIT: No, it doesn't work when num-world-states != 10
   let y num-world-states / 2 * size-temp + size-temp / 2
 
   create-turtles num-world-states [
@@ -124,9 +127,10 @@ end
 
 to create-random-mapping
   clear-links
-  let mapping n-values num-world-states [ i -> i ]
+  let mapping n-values population-size [ i -> i ]
   set mapping shuffle mapping
-  let i num-world-states
+  let i population-size
+  ; can perhaps be simplified with item reporter
   foreach mapping [ j ->
     ask turtle i [
       create-link-with turtle j
@@ -185,8 +189,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
