@@ -19,6 +19,8 @@ globals [  ; commented out variables are sliders
 
   ; stats
   num-suc  ; list, how many pairs were successful in round i?
+  pc-count  ; how many consecutive rounds with perfect communication?
+  mov-avg-1000  ; moving average of communication quality over the last 1000 rounds
 ]
 
 senders-own [
@@ -59,6 +61,7 @@ to go
   ask senders [ learning ]
   ask receivers [ learning ]
   statistics
+  if pc-count = 100 [ stop ]  ; halt and drop everything if communication quality has been over 8 for 100 rounds
   tick
 end
 
@@ -211,7 +214,6 @@ end
 
 
 to add-ball  ; senders, receivers
-  set color white
   if breed = senders [
     let old-urn item world-state urns
     let new-urn sentence old-urn chosen-signal
@@ -268,6 +270,8 @@ end
 
 to statistics
   set num-suc sentence num-suc num-successes
+  set mov-avg-1000 moving-average num-suc 1000
+  update-pc-counter
 end
 
 
@@ -294,6 +298,12 @@ to-report moving-average [any-list n]
 end
 
 
+to update-pc-counter
+  ifelse mov-avg-1000 > 8
+    [ set pc-count pc-count + 1 ]
+    [ set pc-count 0 ]
+end
+
 to dummy
   let d-list [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
   let len length d-list
@@ -301,67 +311,6 @@ to dummy
   print d-list
   print mean sublist d-list cut len
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 453
@@ -489,10 +438,10 @@ NIL
 HORIZONTAL
 
 PLOT
-7
-242
-421
-538
+12
+314
+943
+739
 num-successes
 ticks
 # successes
@@ -506,8 +455,19 @@ true
 PENS
 "n=10" 1.0 0 -1 true "" "plot moving-average num-suc 10"
 "n=100" 1.0 0 -7500403 true "" "plot moving-average num-suc 100"
-"n=1000" 1.0 0 -2674135 true "" "plot moving-average num-suc 1000"
+"n=1000" 1.0 0 -2674135 true "" "plot mov-avg-1000"
 "n=10000" 1.0 0 -955883 true "" "plot moving-average num-suc 10000"
+
+MONITOR
+276
+139
+347
+184
+NIL
+pc-count
+0
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
