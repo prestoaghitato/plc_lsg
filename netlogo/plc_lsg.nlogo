@@ -1,13 +1,13 @@
 breed [ senders sender ]
 breed [ receivers receiver ]
 
-globals [
+globals [  ; commented out variables are sliders
   ; model logic
   num-world-states  ; number of possible world states
   num-actions  ; number of possible actions, equal to num-world-states
   population-size  ; size of sender population and size of receiver population
   world-state  ; current state f the world
-  num-signals  ; number of available signals
+;  num-signals  ; number of available signals
 
   ; turtle visual
   turtle-distance
@@ -29,6 +29,10 @@ receivers-own [
   chosen-action
 ]
 
+links-own [
+  signal
+]
+
 
 to setup
   clear-all
@@ -46,11 +50,11 @@ to go
   create-random-mapping
   senders-consult-urn
   senders-send-signal
+  receivers-receive-signal
   receivers-consult-urn
-  receivers-perform-action
-  ifelse action-match-state?
-    [ add-ball ]
-    [ remove-ball ]
+  receivers-report-success
+  ask senders [ learning ]
+  ask receivers [ learning ]
   tick
 end
 
@@ -60,7 +64,7 @@ to initialise-globals
   set num-world-states 10
   set num-actions num-world-states
   set population-size 10
-  set num-signals 4
+;  set num-signals 4
 
   ; turtle visual
   set turtle-distance world-height / population-size
@@ -160,6 +164,19 @@ end
 
 
 to senders-send-signal
+  ; senders pass on signal to links
+  ask senders [
+    ask my-links [
+      set signal [chosen-signal] of myself
+    ]
+  ]
+end
+
+
+to receivers-receive-signal
+  ask receivers [
+    set received-signal [signal] of one-of my-links
+  ]
 end
 
 
@@ -171,27 +188,52 @@ to receivers-consult-urn
 end
 
 
-to receivers-perform-action
+to receivers-report-success
+  ; receivers set link signal to 42 if action matches world state
+  ask receivers [
+    if chosen-action = world-state [
+      ask my-links [
+        set signal 42
+        set color white
+      ]
+    ]
+  ]
 end
 
 
-to-report action-match-state?
-  report true
+to learning  ; senders, receivers
+  ifelse [signal] of one-of my-links = 42
+    [ add-ball ]
+    [ remove-ball ]
 end
 
 
-to add-ball
+to add-ball  ; senders, receivers
+  set color white
+  if breed = senders [
+
+    let old item world-state urns
+    let new sentence old chosen-signal
+    set urns replace-item world-state urns new
+  ]
+  if breed = receivers [
+    let old item received-signal urns
+    let new sentence old chosen-action
+    set urns replace-item received-signal urns new
+  ]
 end
 
 
-to remove-ball
+to remove-ball  ; senders, receivers
+  set color black
 end
 
 
 to dummy
   let d-list [0 1 2 3 4 5 6 7 8 9]
-  let dd-list [[0 1 2] [3 4 5] [6 7 8] [9]]
-  print item 0 dd-list
+  print d-list
+  set d-list sentence d-list 42
+  print d-list
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -271,6 +313,38 @@ NIL
 NIL
 NIL
 0
+
+BUTTON
+52
+80
+115
+113
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+SLIDER
+22
+135
+194
+168
+num-signals
+num-signals
+1
+10
+10.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -1,13 +1,13 @@
 breed [ senders sender ]
 breed [ receivers receiver ]
 
-globals [
+globals [  ; commented out variables are sliders
   ; model logic
   num-world-states  ; number of possible world states
   num-actions  ; number of possible actions, equal to num-world-states
   population-size  ; size of sender population and size of receiver population
   world-state  ; current state f the world
-  num-signals  ; number of available signals
+;  num-signals  ; number of available signals
 
   ; turtle visual
   turtle-distance
@@ -211,8 +211,15 @@ end
 to add-ball  ; senders, receivers
   set color white
   if breed = senders [
-    print item world-state urns
 
+    let old item world-state urns
+    let new sentence old chosen-signal
+    set urns replace-item world-state urns new
+  ]
+  if breed = receivers [
+    let old item received-signal urns
+    let new sentence old chosen-action
+    set urns replace-item received-signal urns new
   ]
 end
 
@@ -224,8 +231,9 @@ end
 
 to dummy
   let d-list [0 1 2 3 4 5 6 7 8 9]
-  let dd-list [[0 1 2] [3 4 5] [6 7 8] [9]]
-  print item 0 dd-list
+  print d-list
+  set d-list sentence d-list 42
+  print d-list
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -305,6 +313,38 @@ NIL
 NIL
 NIL
 0
+
+BUTTON
+52
+80
+115
+113
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+SLIDER
+22
+135
+194
+168
+num-signals
+num-signals
+1
+10010
+4.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
