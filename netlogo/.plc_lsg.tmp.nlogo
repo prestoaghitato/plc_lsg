@@ -18,7 +18,7 @@ globals [  ; commented out variables are sliders
   turtle-heading
 
   ; stats
-  num-successes  ; how many pairs were successful in this round?
+  num-suc  ; list, how many pairs were successful in round i?
 ]
 
 senders-own [
@@ -267,20 +267,39 @@ end
 
 
 to statistics
-  set num-successes 0
+  set num-suc sentence num-suc num-successes
+end
+
+
+to-report num-successes
+  ; how many pairs were successful this round?
+  let out 0
   ask links [
     if signal = 42 [
-      set num-successes num-successes + 1
+      set out out + 1
     ]
   ]
+  report out
+end
+
+
+to-report moving-average [any-list n]
+  ; moving average over n rounds
+  if any-list = 0 [ report 0 ]
+  let len length any-list
+  if n >= len [ report mean any-list ]  ; no need to calculate if list not long enough
+  let cut len - n
+  let partial-list sublist any-list cut len
+  report mean partial-list
 end
 
 
 to dummy
-  let d-list [0 1 2 3 4 5 6 7 8 9]
+  let d-list [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
+  let len length d-list
+  let cut len - 10
   print d-list
-  set d-list sentence d-list 42
-  print d-list
+  print mean sublist d-list cut len
 end
 
 
@@ -345,13 +364,13 @@ end
 
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+453
 10
 712
-513
+270
 -1
 -1
-14.97
+7.61
 1
 10
 1
@@ -472,8 +491,8 @@ HORIZONTAL
 PLOT
 7
 242
-207
-392
+421
+538
 num-successes
 ticks
 # successes
@@ -482,10 +501,13 @@ ticks
 0.0
 10.0
 true
-false
+true
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot num-successes"
+"n=10" 1.0 0 -1 true "" "plot moving-average num-suc 10"
+"n=100" 1.0 0 -7500403 true "" "plot moving-average num-suc 100"
+"n=1000" 1.0 0 -2674135 true "" "plot moving-average num-suc 1000"
+"n=10000" 1.0 0 -955883 true "" "plot moving-average num-suc 10000"
 
 @#$#@#$#@
 ## WHAT IS IT?
