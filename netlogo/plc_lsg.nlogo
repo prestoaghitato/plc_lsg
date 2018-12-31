@@ -4,6 +4,7 @@ breed [ receivers receiver ]
 globals [
   ; model logic
   num-world-states  ; number of possible world states
+  num-actions  ; number of possible actions, equal to num-world-states
   population-size  ; size of sender population and size of receiver population
   world-state  ; current state f the world
   num-signals  ; number of available signals
@@ -19,10 +20,13 @@ globals [
 
 senders-own [
   urns  ; list of lists, has length num-world-states, list in position i is urn for i-th world state
+  chosen-signal
 ]
 
 receivers-own [
   urns  ; similar to senders' variable, list in position i is urn for i-th signal
+  received-signal
+  chosen-action
 ]
 
 
@@ -54,6 +58,7 @@ end
 to initialise-globals
   ; model logic
   set num-world-states 10
+  set num-actions num-world-states
   set population-size 10
   set num-signals 4
 
@@ -88,6 +93,7 @@ to create-population
     set label word breed word " " who
     set sender-y sender-y - turtle-distance
 
+    ; one urn for every world state containing one ball for every signal
     let initial-urn n-values num-signals [i -> i]
     set urns n-values num-world-states [initial-urn]
   ]
@@ -102,6 +108,10 @@ to create-population
     set heading 90
     set label word breed word " " who
     set receiver-y receiver-y - turtle-distance
+
+    ; one urn for every signal containing one ball for every action
+    let initial-urn n-values num-actions [i -> i]
+    set urns n-values num-signals [initial-urn]
   ]
 end
 
@@ -142,6 +152,10 @@ end
 
 
 to senders-consult-urn
+  ask senders [
+    ; pick a signal from the urn corresponding to the current world state
+    set chosen-signal one-of item world-state urns
+  ]
 end
 
 
@@ -150,6 +164,10 @@ end
 
 
 to receivers-consult-urn
+  ask receivers [
+    ; pick an action from the urn corresponding to the received signal
+    set chosen-action one-of item received-signal urns
+  ]
 end
 
 
@@ -158,6 +176,7 @@ end
 
 
 to-report action-match-state?
+  report true
 end
 
 
@@ -166,6 +185,13 @@ end
 
 
 to remove-ball
+end
+
+
+to dummy
+  let d-list [0 1 2 3 4 5 6 7 8 9]
+  let dd-list [[0 1 2] [3 4 5] [6 7 8] [9]]
+  print item 0 dd-list
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -211,6 +237,40 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+813
+158
+891
+191
+NIL
+dummy
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+102
+32
+183
+65
+go once
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -20,10 +20,17 @@ globals [
 
 senders-own [
   urns  ; list of lists, has length num-world-states, list in position i is urn for i-th world state
+  chosen-signal
 ]
 
 receivers-own [
   urns  ; similar to senders' variable, list in position i is urn for i-th signal
+  received-signal
+  chosen-action
+]
+
+links-own [
+  signal
 ]
 
 
@@ -43,11 +50,11 @@ to go
   create-random-mapping
   senders-consult-urn
   senders-send-signal
+  receivers-receive-signal
   receivers-consult-urn
-  receivers-perform-action
-  ifelse action-match-state?
-    [ add-ball ]
-    [ remove-ball ]
+  receivers-report-success
+  ask senders [ learning ]
+  ask receivers [ learning ]
   tick
 end
 
@@ -55,7 +62,7 @@ end
 to initialise-globals
   ; model logic
   set num-world-states 10
-
+  set num-actions num-world-states
   set population-size 10
   set num-signals 4
 
@@ -90,6 +97,7 @@ to create-population
     set label word breed word " " who
     set sender-y sender-y - turtle-distance
 
+    ; one urn for every world state containing one ball for every signal
     let initial-urn n-values num-signals [i -> i]
     set urns n-values num-world-states [initial-urn]
   ]
@@ -105,6 +113,7 @@ to create-population
     set label word breed word " " who
     set receiver-y receiver-y - turtle-distance
 
+    ; one urn for every signal containing one ball for every action
     let initial-urn n-values num-actions [i -> i]
     set urns n-values num-signals [initial-urn]
   ]
@@ -147,30 +156,76 @@ end
 
 
 to senders-consult-urn
+  ask senders [
+    ; pick a signal from the urn corresponding to the current world state
+    set chosen-signal one-of item world-state urns
+  ]
 end
 
 
 to senders-send-signal
+  ; senders pass on signal to links
+  ask senders [
+    ask my-links [
+      set signal [chosen-signal] of myself
+    ]
+  ]
+end
+
+
+to receivers-receive-signal
+  ask receivers [
+    set received-signal [signal] of one-of my-links
+  ]
 end
 
 
 to receivers-consult-urn
+  ask receivers [
+    ; pick an action from the urn corresponding to the received signal
+    set chosen-action one-of item received-signal urns
+  ]
 end
 
 
-to receivers-perform-action
+to receivers-report-success
+  ; receivers set link signal to 42 if action matches world state
+  ask receivers [
+    if chosen-action = world-state [
+      ask my-links [
+        set signal 42
+        set color white
+      ]
+    ]
+  ]
 end
 
 
-to-report action-match-state?
+to learning  ; senders, receivers
+  ifelse [signal] of one-of my-links = 42
+    [ add-ball ]
+    [ remove-ball ]
 end
 
 
-to add-ball
+to add-ball  ; senders, receivers
+  set color white
+  if breed = senders [
+    print item world-state urns
+
+  ]
 end
 
 
-to remove-ball
+to remove-ball  ; senders, receivers
+  set color black
+end
+
+
+to dummy
+  let d-list [0 1 2 3 4 5 6 7 8 9]
+  let dd-list [[0 1 2] [3 4 5] [6 7 8] [9]]
+  print item 0 dd-list
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -216,6 +271,40 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+813
+158
+891
+191
+NIL
+dummy
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+102
+32
+183
+65
+go once
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
