@@ -5,7 +5,7 @@ globals [  ; commented out variables are sliders
   ; model logic
   num-world-states  ; number of possible world states
   num-actions  ; number of possible actions, equal to num-world-states
-  population-size  ; size of sender population and size of receiver population
+;  population-size  ; size of sender population and size of receiver population
   world-state  ; current state f the world
 ;  num-signals  ; number of available signals
 
@@ -16,6 +16,9 @@ globals [  ; commented out variables are sliders
   turtle-shape
   turtle-color
   turtle-heading
+
+  ; stats
+  num-successes  ; how many pairs were successful in this round?
 ]
 
 senders-own [
@@ -55,6 +58,7 @@ to go
   receivers-report-success
   ask senders [ learning ]
   ask receivers [ learning ]
+  statistics
   tick
 end
 
@@ -63,8 +67,6 @@ to initialise-globals
   ; model logic
   set num-world-states 10
   set num-actions num-world-states
-  set population-size 10
-  set num-signals 4
 
   ; turtle visual
   set turtle-distance world-height / population-size
@@ -211,21 +213,66 @@ end
 to add-ball  ; senders, receivers
   set color white
   if breed = senders [
-
-    let old item world-state urns
-    let new sentence old chosen-signal
-    set urns replace-item world-state urns new
+    let old-urn item world-state urns
+    let new-urn sentence old-urn chosen-signal
+    set urns replace-item world-state urns new-urn
   ]
   if breed = receivers [
-    let old item received-signal urns
-    let new sentence old chosen-action
-    set urns replace-item received-signal urns new
+    let old-urn item received-signal urns
+    let new-urn sentence old-urn chosen-action
+    set urns replace-item received-signal urns new-urn
   ]
 end
 
 
 to remove-ball  ; senders, receivers
-  set color black
+  if breed = senders [
+    ; get used urn and make a copy
+    let old-urn item world-state urns
+    let new-urn old-urn
+    ; go hunting for wrong signal in urn
+    let counter 0  ; keep track of indeces
+    foreach new-urn [ i ->
+      ; if signal is found, save its index
+      if item i new-urn = chosen-signal [
+        let ind-old counter
+        stop
+      ]
+      set counter counter + 1
+    ]
+    ; remove wrong signal from new urn
+    set new-urn remove-item counter new-urn
+    ; replace old urn only if there's still >= 1 ball with the wrong signal in the new urn
+    if member? chosen-signal new-urn
+      [ set urns replace-item world-state urns new-urn ]
+  ]
+
+  if breed = receivers [
+    ; same code, slightly adapted for receivers
+    let old-urn item received-signal urns
+    let new-urn old-urn
+    let counter 0
+    foreach new-urn [ i ->
+      if item i new-urn = chosen-action [
+        let ind-old counter
+        stop
+      ]
+      set counter counter + 1
+    ]
+    set new-urn remove-item counter new-urn
+    if member? chosen-action new-urn
+      [ set urns replace-item received-signal urns new-urn ]
+  ]
+end
+
+
+to statistics
+  set num-successes 0
+  ask links [
+    if signal = 42 [
+      set num-successes num-successes + 1
+    ]
+  ]
 end
 
 
@@ -235,6 +282,67 @@ to dummy
   set d-list sentence d-list 42
   print d-list
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -339,12 +447,45 @@ SLIDER
 num-signals
 num-signals
 1
-10010
-4.0
+10
+10.0
 1
 1
 NIL
 HORIZONTAL
+
+SLIDER
+21
+177
+193
+210
+population-size
+population-size
+1
+100
+10.0
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+7
+242
+207
+392
+num-successes
+ticks
+# successes
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot num-successes"
 
 @#$#@#$#@
 ## WHAT IS IT?
