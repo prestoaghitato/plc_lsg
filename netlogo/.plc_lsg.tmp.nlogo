@@ -61,9 +61,12 @@ to go
   ask senders [ learning ]
   ask receivers [ learning ]
   statistics
-  if pc-count = 100 [ stop ]  ; halt and drop everything if communication has been over 0.8 for 100 rounds
+  if pc-count = 100 [ stop ]  ; halt and drop everything if communication quality has been over 8 for 100 rounds
   tick
 end
+
+
+;;; SETUP ;;;
 
 
 to initialise-globals
@@ -158,6 +161,9 @@ to create-random-mapping
   ]
   ask links [ set color black ]
 end
+
+
+;;; UPDATE ;;;
 
 
 to senders-consult-urn
@@ -287,22 +293,27 @@ to-report num-successes
 end
 
 
+;;; STATISTICS ;;;
+
+
 to-report moving-average [any-list n]
   ; moving average over n rounds
   if any-list = 0 [ report 0 ]
   let len length any-list
-  if n >= len [ report mean any-list ]  ; no need to calculate if list not long enough
+  if n >= len [ report 0 ]  ; no need to calculate if list not long enough
   let cut len - n
   let partial-list sublist any-list cut len
-  report mean partial-list
+  let out mean partial-list
+  report out / population-size  ; normalise
 end
 
 
 to update-pc-counter
-  ifelse mov-avg-1000 > 08
+  ifelse mov-avg-1000 > 0.8
     [ set pc-count pc-count + 1 ]
     [ set pc-count 0 ]
 end
+
 
 to dummy
   let d-list [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
@@ -327,7 +338,7 @@ GRAPHICS-WINDOW
 1
 0
 0
-0
+1
 1
 -16
 16
@@ -431,7 +442,7 @@ population-size
 population-size
 1
 100
-10.0
+100.0
 1
 1
 NIL
@@ -440,15 +451,15 @@ HORIZONTAL
 PLOT
 12
 314
-943
-739
+1302
+633
 num-successes
 ticks
-# successes
+quality of communication
 0.0
 10.0
 0.0
-10.0
+1.0
 true
 true
 "" ""
@@ -456,7 +467,6 @@ PENS
 "n=10" 1.0 0 -1 true "" "plot moving-average num-suc 10"
 "n=100" 1.0 0 -7500403 true "" "plot moving-average num-suc 100"
 "n=1000" 1.0 0 -2674135 true "" "plot mov-avg-1000"
-"n=10000" 1.0 0 -955883 true "" "plot moving-average num-suc 10000"
 
 MONITOR
 276
