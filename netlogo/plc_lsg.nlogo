@@ -3,11 +3,13 @@ breed [ receivers receiver ]
 
 globals [  ; commented out variables are sliders
   ;; model logic
-  num-world-states  ; number of possible world states
   num-actions  ; number of possible actions, equal to num-world-states
   world-state  ; current state of the world
 ;  population-size  ; size of sender population and size of receiver population
 ;  num-signals  ; number of available signals
+;  num-world-states  ; number of possible world states
+;  num-add-balls  ; number of balls to add to an urn on success
+;  num-remove-balls  ; number of balls to remove from an urn on failure
 
   ;; turtle visual
   turtle-distance
@@ -17,7 +19,7 @@ globals [  ; commented out variables are sliders
   turtle-color
   turtle-heading
 
-  ; stats
+  ;; stats
   num-suc  ; list, how many pairs were successful in round i?
   pc-count  ; how many consecutive rounds with perfect communication?
   mov-avg-1000  ; moving average of communication quality over the last 1000 rounds
@@ -71,7 +73,6 @@ end
 
 to initialise-globals
   ; model logic
-  set num-world-states 10
   set num-actions num-world-states
 
   ; turtle visual
@@ -233,48 +234,38 @@ end
 
 to add-ball  ; senders, receivers
   if breed = senders [
-    let old-urn item world-state urns
-    let new-urn sentence old-urn chosen-signal
-    set urns replace-item world-state urns new-urn
+    let used-urn item world-state urns
+    repeat num-add-balls [ set used-urn sentence used-urn chosen-signal ]
+    set urns replace-item world-state urns used-urn
   ]
   if breed = receivers [
-    let old-urn item received-signal urns
-    let new-urn sentence old-urn chosen-action
-    set urns replace-item received-signal urns new-urn
+    let used-urn item received-signal urns
+    repeat num-add-balls [ set used-urn sentence used-urn chosen-action ]
+    set urns replace-item received-signal urns used-urn
   ]
 end
 
 
 to remove-ball  ; senders, receivers
   if breed = senders [
-    ; get used urn and make a copy
-    let old-urn item world-state urns
-    let new-urn old-urn
-    ; go hunting for wrong signal in used urn
-    let ball-index get-ball-index new-urn chosen-signal
-    print ball-index
+    ; make copy of used urn
+    let used-urn item world-state urns
+    ; get index of failure signal in used urn
+    let ball-index get-ball-index used-urn chosen-signal
     ; remove wrong signal from new urn
-    set new-urn remove-item ball-index new-urn
+    set used-urn remove-item ball-index used-urn
     ; replace old urn only if there's still >= 1 ball with the wrong signal in the new urn
-    if member? chosen-signal new-urn
-      [ set urns replace-item world-state urns new-urn ]
+    if member? chosen-signal used-urn
+      [ set urns replace-item world-state urns used-urn ]
   ]
 
   if breed = receivers [
     ; same code, slightly adapted for receivers
-    let old-urn item received-signal urns
-    let new-urn old-urn
-    let counter 0
-    foreach new-urn [ i ->
-      if item i new-urn = chosen-action [
-        let ind-old counter
-        stop
-      ]
-      set counter counter + 1
-    ]
-    set new-urn remove-item counter new-urn
-    if member? chosen-action new-urn
-      [ set urns replace-item received-signal urns new-urn ]
+    let used-urn item received-signal urns
+    let ball-index get-ball-index used-urn chosen-action
+    set used-urn remove-item ball-index used-urn
+    if member? chosen-action used-urn
+      [ set urns replace-item received-signal urns used-urn ]
   ]
 end
 
@@ -282,14 +273,9 @@ end
 to-report get-ball-index [urn value]
   ; finds the index of a given value in an urn
   let counter 0  ; keep track of indeces
-  let ball-index 0  ; store index of ball with wrong signal
   foreach urn [ ball ->
-    ; if signal is found, save its index
-    if ball = chosen-signal [
-      set ball-index counter
-      report ball-index
-      stop
-    ]
+    ; if signal is found, report its index
+    if ball = value [ report counter ]
     set counter counter + 1
   ]
 end
@@ -422,10 +408,10 @@ NIL
 0
 
 BUTTON
-52
-80
-115
-113
+195
+32
+258
+65
 NIL
 go
 T
@@ -439,25 +425,25 @@ NIL
 0
 
 SLIDER
-22
-135
-194
-168
+24
+75
+196
+108
 num-signals
 num-signals
 1
 10
-10.0
+4.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-21
-177
-193
-210
+23
+117
+195
+150
 population-size
 population-size
 1
@@ -488,16 +474,50 @@ PENS
 "n=100" 1.0 0 -7500403 true "" "plot moving-average num-suc 100"
 "n=1000" 1.0 0 -2674135 true "" "plot mov-avg-1000"
 
-MONITOR
-276
-139
-347
-184
-NIL
-pc-count
-0
+SLIDER
+23
+159
+195
+192
+num-world-states
+num-world-states
+2
+10
+4.0
 1
-11
+1
+NIL
+HORIZONTAL
+
+SLIDER
+22
+198
+194
+231
+num-add-balls
+num-add-balls
+0
+10
+3.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+23
+239
+195
+272
+num-remove-balls
+num-remove-balls
+0
+10
+1.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
