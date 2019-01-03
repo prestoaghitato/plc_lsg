@@ -322,14 +322,6 @@ to update-pc-counter
     [ set pc-count 0 ]
 end
 
-
-to dummy
-  let d-list [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
-  let len length d-list
-  let cut len - 10
-  print d-list
-  print mean sublist d-list cut len
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 453
@@ -500,7 +492,7 @@ num-add-balls
 num-add-balls
 0
 10
-3.0
+2.0
 1
 1
 NIL
@@ -515,7 +507,7 @@ num-remove-balls
 num-remove-balls
 0
 10
-2.0
+1.0
 1
 1
 NIL
