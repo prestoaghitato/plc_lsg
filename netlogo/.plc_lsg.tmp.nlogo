@@ -2,14 +2,14 @@ breed [ senders sender ]
 breed [ receivers receiver ]
 
 globals [  ; commented out variables are sliders
-  ; model logic
+  ;; model logic
   num-world-states  ; number of possible world states
   num-actions  ; number of possible actions, equal to num-world-states
+  world-state  ; current state of the world
 ;  population-size  ; size of sender population and size of receiver population
-  world-state  ; current state f the world
 ;  num-signals  ; number of available signals
 
-  ; turtle visual
+  ;; turtle visual
   turtle-distance
   turtle-y
   turtle-size
@@ -128,6 +128,18 @@ to create-population
 end
 
 
+to add-signal
+  ; increases the number of available signals by one and adapts the urns of senders and receivers accordingly
+  ask senders [
+    ; adapt urns
+    let old-urns urns
+  ]
+  ask receivers [
+    ; adapt urns
+  ]
+end
+
+
 to create-world-state-overview-visual
   let label-num 0
   let size-temp 2
@@ -238,21 +250,14 @@ to remove-ball  ; senders, receivers
     ; get used urn and make a copy
     let old-urn item world-state urns
     let new-urn old-urn
-    ; go hunting for wrong signal in urn
-    let counter 0  ; keep track of indeces
-    foreach new-urn [ i ->
-      ; if signal is found, save its index
-      if item i new-urn = chosen-signal [
-        let ind-old counter
-        stop
-      ]
-      set counter counter + 1
-    ]
+    ; go hunting for wrong signal in used urn
+    let ball-index get-ball-index new-urn chosen-signal
+    print ball-index
     ; remove wrong signal from new urn
-    set new-urn remove-item counter new-urn
+    set new-urn remove-item ball-index new-urn
     ; replace old urn only if there's still >= 1 ball with the wrong signal in the new urn
-    if member? chosen-signal new-urn
-      [ set urns replace-item world-state urns new-urn ]
+;    if member? chosen-signal new-urn
+;      [ set urns replace-item world-state urns new-urn ]
   ]
 
   if breed = receivers [
@@ -273,6 +278,21 @@ to remove-ball  ; senders, receivers
   ]
 end
 
+
+to-report get-ball-index [urn value]
+  ; finds the index of a given value in an urn
+  let counter 0  ; keep track of indeces
+  let ball-index 0  ; store index of ball with wrong signal
+  foreach urn [ ball ->
+    ; if signal is found, save its index
+    if ball = chosen-signal [
+      set ball-index counter
+      report ball-index
+      stop
+    ]
+    set counter counter + 1
+  ]
+end
 
 to statistics
   set num-suc sentence num-suc num-successes
@@ -442,7 +462,7 @@ population-size
 population-size
 1
 100
-100.0
+10.0
 1
 1
 NIL
