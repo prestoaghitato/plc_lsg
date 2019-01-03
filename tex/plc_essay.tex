@@ -46,7 +46,7 @@
 \newcommand{\lsg}{\textsc{lsg}}
 \newcommand{\odd}{\textsc{odd}}
 
-\title{Brief Article}
+\title{Influencing convergence speed in Lewis signalling games}
 \author{Marcel Ruland}
 \date{hand-in date: \today}  % omit date
 
@@ -64,13 +64,12 @@ There is a \emph{sender}, who can observe the current state of the world and a \
 In each round exactly one state of the world \(s \in S\) holds, i.e.~is the current state of the world.
 The sender will observe the current state of the world and then choose a signal \(t \in T\) and send it to the receiver.
 The receiver will observe the signal and then perform an act \(a \in A\).
-A round is won if the act \(a\) matches the current state of the world \(s\), lost if it does not.
-Both sender and receiver know about whether the round was a success or failure and adapt their strategies for choosing signals and acts according to some learning function.
+A round is won if the act \(a\) matches the current state of the world \(s\) and lost if it does not.
+Both sender and receiver know about whether the round was a success or a failure and adapt their strategies for choosing signals and acts according to some learning function.
 Commonly, states of the world are distributed uniformly and sender and receiver start out with randomly choosing a signal and an act respectively, but this is not a formal requirement for the game to count as an \lsg.
 
-
 \emph{Agent-based modelling} (henceforth \abm) is a modelling paradigm that has its roots in cellular automata and complexity theory \citep{heath_some_2014}.
-Following \citet{grimm_individual_2005,railsback_agent_2011} an \abm, there are individual \emph{agents} representing individual entities of one or several kinds (such as for instance cars, sheep, or viruses).
+Following \citet{grimm_individual_2005,railsback_agent_2011} in an \abm, there are individual \emph{agents} representing individual entities of one or several kinds (such as for instance cars, sheep, or viruses).
 These entities interact with each other, with an \emph{environment,} or (typically) both.
 The environment itself has characteristics which influence the agents.
 It can play a major role in the simulation (such as a forest providing food and shelter to a population of animals) or be virtually inexistent (as is the case in the present essay, see section~\ref{sec:mod}).
@@ -82,6 +81,7 @@ An \abm\ will be created where there is a population of senders and a population
 Initially the number of signals available will be less than the number of states of the world and actions, but will be increased with time.
 The aim is to determine how the time at or the condition on which more symbols will be made available influences the speed of convergence towards \emph{perfect communication.}
 Perfect communication in an \lsg\ is achieved if ``each state of the world corresponds to a term in the language and each term corresponds to an act that matches the state of the world, so each signal leads to a successful action'' \citep[p.~530, there referred to as ``perfect Lewis signalling system'']{barrett_dynamic_2007}.
+The model, described in detail in section \ref{sec:mod}, has some functionality for choosing parameters which will not be used in this essay, for simple reasons of scope.
 
 
 \section{Model description}
@@ -90,42 +90,89 @@ The description of the model follows the \emph{Overview, Design concepts, and De
 
 \subsection{Purpose}
 \label{ssec:modpur}
-The model is run to understand how, based on elapsed time and/or other conditions, increasing the number of symbols available in an \lsg\ accelerates or slows down convergence towards perfect communication.
+The model is run to understand how, based on elapsed time and/or quality of communication, increasing the number of symbols available in an \lsg\ accelerates or slows down convergence towards perfect communication.
 
 \subsection{Entities, state variables, and scales}
 \label{ssec:modent}
 There are two entities, \code{senders} and \code{receivers}, the populations of which are equal in size.
-The \code{senders}
-
+The \code{senders} have two state variables.
+\code{urns} is a list of integer lists for implementing the urns in an urn learning function, see subsubsection \ref{sssec:moddeslea}.
+Every nested list represents one urn, the integers within it represent balls to be drawn from it.
+\code{chosen-signal} is an integer corresponding to the signal the sender will send in the current round.
+\code{receivers} are structured almost identically.
+The urns are also lists of integer lists, but are structured differently (see again subsubsection \ref{sssec:moddeslea}).
+Instead of a \code{chosen-signal} variable, they have a \code{chosen-action} variable.
+In addition, they also have a \code{received-signal} variable, which stores the signal received from a sender.
+Senders and receivers are connected by \code{links}, which carry a signal in their \code{signal} variable.
+This \code{signal} variable can be read only by the sender and the receiver corresponding to the link.
+The environment is simply a state of the world, implemented as a global integer variable, and nothing else.
+The following parameters of the model can be modified:
+\begin{itemize}
+	\item number of possible states of the world (the number of possible actions is always equal to this value)
+	\item number of available signals
+	\item population size (equal for senders and receivers)
+	\item number of balls added in case of success
+	\item number of balls removed in case of failure
+\end{itemize}
 
 \subsection{Process overview and scheduling}
 \label{ssec:modpro}
-In every iteration, a randomised one-to-one mapping from senders to receivers is created.  % create by shuffling array of length n with integers 1 to n
-Senders then interact with their corresponding receiver.
-The order of the interactions is randomised.
+Every iteration begins with randomly choosing a state of the world and creating a randomised one-to-one mapping from senders to receivers.
+Links are then created and connected to senders and receivers according to this mapping.
+Senders have access to the state of the world and choose a signal based on it, which they then pass on to their respective link.
+Once the links carry the sent signal, receivers have access to it and read it.
+They choose an action based on the received signal and check whether the action matches the state of the world.
+Receivers then pass on an arbitrary, conventional value (here 42) on to the links, which the receivers can read and interpret as \emph{success.}
+Lastly, senders and receivers run a learning function according to whether the round was a success or a failure.
+
+The reader will notice that the previous paragraph seems to contradict the above given definition for an \lsg.
+Receivers cannot observe the state of the world, yet in this model description it is the receivers who check whether their performed action corresponds to the current state of the world.
+While this may seem a violation of the rules of an \lsg, it is in fact not.
+Once signals and actions have been chosen, the simplest way of implementing the passing on of the correct success/failure information to the correct senders/receivers just happened to be letting the receivers check the global state of the world variable and then informing the correct senders via the still-existent links.
+At no other time do the receivers access the state of the world variable, thus not violating the definition of an \lsg.
+ 
 
 \subsection{Design concepts}
 \label{ssec:moddes}
-\subsubsection{Basic principles}
 \subsubsection{Emergence}
+The number one (and only) emergent behaviour predicted here is that of perfect communication.
+From an initially random distribution of chosen signals and chosen actions emerges (ideally) a perfect one-to-one mapping from states of the world to signals and to actions corresponding to the states of the world.
 \subsubsection{Adaptation}
+\label{sssec:moddesada}
+Senders have as many urns as there are possible states of the world.
+Receivers have as many urns as there are available signals.
+A sender chooses a signal by randomly drawing a ball from the urn corresponding to the current state of the world.
+A receiver chooses an action by randomly drawing a ball from the urn corresponding to the received signal.
+
 \subsubsection{Objectives}
+Senders and receivers aim to maximise the percentage of rounds in which communication is successful, i.e.~in which the current state of the world matches the action chosen by the receiver.
+
 \subsubsection{Learning}
+\label{sssec:moddeslea}
+Senders start off with one ball corresponding to every possible signal in each of their urns.
+In a game with three possible states of the world and two available signals, the initial configuration will look like this: \code{[[0 1] [0 1] [0 1]]}
+Receivers start off with one ball corresponding to every possible action in each of their urns.
+In the same game, their initial urn configuration looks as follows: \code{[[1 2 3] [1 2 3]]}
+In case of success, senders and receivers will add more balls with the chosen signal/action to the consulted urn.
+In case of failure, they will remove balls with the chosen signal/action.
+The number of added or removed balls is determined by the value of two parameters.
+
 \subsubsection{Prediction}
-\subsubsection{Sensing}
-\subsubsection{Interaction}
+Agents cannot predict the future values of any variables.
+
 \subsubsection{Stochasticity}
-\subsubsection{Collectives}
+The state of the world of a round is determined by randomly drawing a value from a uniform distribution.
+Furthermore, within one of the steps described in subsection \ref{ssec:modpro}, the order in which senders and receivers perform their actions is also randomised.
+
 \subsubsection{Observation}
+A game is considered to converge to perfect communication if 100 consecutive rounds result in a communication quality >~0.8 within one million rounds.
+The 0.8 threshold is in line with \citet[p.~533]{barrett_numerical_2006, barrett_dynamic_2007}.
+In \citet[sec.~2, unpaginated preprint]{barrett_numerical_2006}, the author states that ``After 10\textsuperscript{6} plays the ratio of successful actions to the number of plays, the signal success rate, is typically better than 0.999'', but leaves open how this is measured.
+In trial runs, the condition of 100 consecutive rounds has proven to be a reliable indicator for convergence and has therefore been chosen.
 
 \subsection{Initialisation}
 \label{ssec:modini}
-
-\subsection{Input data}
-\label{ssec:modinp}
-
-\subsection{Submodels}
-\label{ssec:modsub}
+The model is initialised by creating a population, setting the number of available actions equal to the number of possible world states, and resetting the counter keeping track of the number of rounds played.
 
 \section{Results}
 \label{sec:res}

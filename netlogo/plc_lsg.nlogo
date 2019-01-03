@@ -43,11 +43,9 @@ links-own [
 
 to setup
   clear-all
-  initialise-globals
-  set-random-world-state
+  initialise-globals  ; does barely anything
   create-population
   create-world-state-overview-visual
-  create-random-mapping
   reset-ticks
 end
 
@@ -148,19 +146,6 @@ to add-signal
     let new-urn n-values num-actions [i -> i]
     set urns lput new-urn urns
   ]
-end
-
-
-to dummy
-  let bla [[1 2] [2 2] [3 2]]
-  print bla
-  let new-list []
-  foreach bla [ i ->
-    set i sentence i 4
-    set new-list lput i new-list
-  ]
-  set bla new-list
-  print bla
 end
 
 
@@ -373,10 +358,10 @@ ticks
 30.0
 
 BUTTON
-24
-29
-90
-62
+25
+31
+91
+64
 NIL
 setup
 NIL
@@ -432,7 +417,7 @@ num-signals
 num-signals
 1
 10
-7.0
+10.0
 1
 1
 NIL
@@ -497,7 +482,7 @@ num-add-balls
 num-add-balls
 0
 10
-2.0
+3.0
 1
 1
 NIL
@@ -517,6 +502,23 @@ num-remove-balls
 1
 NIL
 HORIZONTAL
+
+BUTTON
+266
+33
+364
+66
+NIL
+add-signal
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
