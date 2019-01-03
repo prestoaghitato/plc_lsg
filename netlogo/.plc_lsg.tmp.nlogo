@@ -131,13 +131,36 @@ end
 
 to add-signal
   ; increases the number of available signals by one and adapts the urns of senders and receivers accordingly
+  if num-signals >= 10 [ stop ]
+  set num-signals num-signals + 1
+  let new-signal num-signals - 1  ; when num-signals is increased, its value-1 is equal to the newly introduced signal
   ask senders [
-    ; adapt urns
-    let old-urns urns
+    ; add new signal to every urn, leave number of urns unchanged
+    let new-urns []
+    foreach urns [ urn ->
+      set urn sentence urn new-signal
+      set new-urns lput urn new-urns
+    ]
+    set urns new-urns
   ]
   ask receivers [
-    ; adapt urns
+    ; add new urn for new signal and fill with one ball for every possible action
+    let new-urn n-values num-actions [i -> i]
+    set urns lput urns new-urn
   ]
+end
+
+
+to dummy
+  let bla [[1 2] [2 2] [3 2]]
+  print bla
+  let new-list []
+  foreach bla [ i ->
+    set i sentence i 4
+    set new-list lput i new-list
+  ]
+  set bla new-list
+  print bla
 end
 
 
@@ -321,7 +344,6 @@ to update-pc-counter
     [ set pc-count pc-count + 1 ]
     [ set pc-count 0 ]
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 453
@@ -357,23 +379,6 @@ BUTTON
 62
 NIL
 setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-813
-158
-891
-191
-NIL
-dummy
 NIL
 1
 T
@@ -427,7 +432,7 @@ num-signals
 num-signals
 1
 10
-4.0
+2.0
 1
 1
 NIL
