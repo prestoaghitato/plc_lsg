@@ -247,25 +247,27 @@ end
 
 
 to remove-ball  ; senders, receivers
-  if breed = senders [
-    ; make copy of used urn
-    let used-urn item world-state urns
-    ; get index of failure signal in used urn
-    let ball-index get-ball-index used-urn chosen-signal
-    ; remove wrong signal from new urn
-    set used-urn remove-item ball-index used-urn
-    ; replace old urn only if there's still >= 1 ball with the wrong signal in the new urn
-    if member? chosen-signal used-urn
-      [ set urns replace-item world-state urns used-urn ]
-  ]
+  repeat num-remove-balls [
+    if breed = senders [
+      ; make copy of used urn
+      let used-urn item world-state urns
+      ; get index of failure signal in used urn
+      let ball-index get-ball-index used-urn chosen-signal
+      ; remove wrong signal from new urn
+      set used-urn remove-item ball-index used-urn
+      ; replace old urn only if there's still >= 1 ball with the wrong signal in the new urn
+      if member? chosen-signal used-urn
+        [ set urns replace-item world-state urns used-urn ]
+    ]
 
-  if breed = receivers [
-    ; same code, slightly adapted for receivers
-    let used-urn item received-signal urns
-    let ball-index get-ball-index used-urn chosen-action
-    set used-urn remove-item ball-index used-urn
-    if member? chosen-action used-urn
-      [ set urns replace-item received-signal urns used-urn ]
+    if breed = receivers [
+      ; same code, slightly adapted for receivers
+      let used-urn item received-signal urns
+      let ball-index get-ball-index used-urn chosen-action
+      set used-urn remove-item ball-index used-urn
+      if member? chosen-action used-urn
+        [ set urns replace-item received-signal urns used-urn ]
+    ]
   ]
 end
 
@@ -513,7 +515,7 @@ num-remove-balls
 num-remove-balls
 0
 10
-1.0
+2.0
 1
 1
 NIL
