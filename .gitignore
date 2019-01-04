@@ -1,5 +1,6 @@
 ### NetLogo
-.plc_lsg.tmp.nlogo
+.*.tmp.nlogo
+*.csv
 
 
 ### TeX
