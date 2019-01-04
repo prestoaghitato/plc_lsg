@@ -432,7 +432,7 @@ population-size
 population-size
 1
 100
-10.0
+4.0
 1
 1
 NIL
@@ -482,7 +482,7 @@ num-add-balls
 num-add-balls
 0
 10
-3.0
+2.0
 1
 1
 NIL
