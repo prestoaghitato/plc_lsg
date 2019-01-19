@@ -21,6 +21,8 @@
 \usepackage{tabularx}  % more spacing options for tables
 \usepackage{booktabs}  % improved tables
 \usepackage{enumitem}  % enumerate environment, custom list labels
+\usepackage{pgfplots}  % plot plots
+	\pgfplotsset{compat=1.15}  % newest version
 \usepackage{localextra}  % provides hyphenation for linguistic terms, names, etc.
 \usepackage{natbib}  % use Harvard citation style
 	\bibliographystyle{newharvard}
@@ -176,6 +178,66 @@ The model is initialised by creating a population, setting the number of availab
 
 \section{Results}
 \label{sec:res}
+The results section is focused on two main questions.
+The most obvious one, and the focus of subsection \ref{ssec:respop} is how population size influences convergence speed in an \lsg, as this parameter is the main novelty that \abm brings to the game.
+A second question is the introduction of signals into an ongoing game.
+Subsection \ref{ssec:resint} investigates how beginning a game with just one signal, and then introducing more signals as the rounds progress, influences convergence speed.
+
+\subsection{Population size}
+\label{ssec:respop}
+In the first experiment, to investigate the effect of population size on convergence speed, the model was run with the following parameter settings:
+\begin{verbatim}
+num-signals = 10
+num-remove-balls = 1
+num-add-balls = 5
+num-world-states = 10
+\end{verbatim}
+\code{population-size} was incremented step-wise from 1, 2, 3, \ldots, 98, 99, 100 and ten runs were performed for every value.\footnote{10 runs are, admittedly, less than one would have liked given the extent of variation shown in figure ref{fig:pop}; unfortunately the complexity of running the model with high values of population-size was such that e.g. 100 runs for every value were just not feasible.}
+
+The value for num-add-balls may seem unusually high.
+Small populations tend to not converge if the value for this parameter is too high, whereas large populations tend to not converge if it is too low.
+Assigning a value of 5 to num-add-balls has proven to reliably lead to convergence with smaller and larger populations.
+In fact, out of the one thousand runs for this experiment, only four runs did not converge within one million iterations.
+The respective population sizes were 3, 4, 12, and 48.
+
+The predicted result here is that with increasing population size the number of iterations until convergence will also increase.
+If a given sender and a given receiver are paired in the random mapping and communicate successfully, then they will adapt their strategies only to each other.
+This is not an issue if population size is equal to one, because the same sender and receiver will be paired over and over again.
+But as population size increases, the likelihood of being paired with the same sender/receiver decreases and therefore iterations are needed not only for convention to emerge within a single pair but within many pairs and eventually across an entire population.
+
+Figure \ref{fig:pop} shows the mean and median convergence speed for all values of \code{population-size} respectively.
+One can see that the mean values consistently are at least as high, but usually higher, than their median counterparts.
+This indicates rare runs with very late convergence, increasing the means more than the medians.
+Visually, the plot seems to affirm the predicted statistical relationship between the two variables and indeed there appears to be a correlation of R2 = 0.55.
+One would obviously expect this relation to be logarithmic, because for every pair added to the population the population grows by a factor of \(\frac{1}{n+1}\), but the simulation is not nearly extensive enough to affirm or deny this hypothesis.
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				xlabel={population size},
+				ylabel={iterations until convergence},
+				legend entries={mean, median},
+				ymax=10800,
+			]
+			\addplot+[mark=none] table {../data/population_size_mean.dat};
+			\addplot+[mark=none] table {../data/population_size_median.dat};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Effect of population size on convergence speed; x-axis indicates population size, y-axis indicates mean and median number of iterations until convergence to perfect communication; the outlier not in view for a population size of 42 has a value of 14450.}
+	\label{fig:pop}
+\end{figure}
+
+\subsection{Introducing signals into an ongoing \lsg}
+\label{ssec:resint}
+A second experiment is concerned with the effects of delaying the introduction of signals into the game. The model was run with the following parameter settings:
+\begin{verbatim}
+population-size = 10
+num-remove-balls = 1
+num-add-balls = 3
+num-world-states = 10
+\end{verbatim}
+
 
 \section{Discussion}
 \label{sec:dis}
