@@ -237,7 +237,24 @@ num-remove-balls = 1
 num-add-balls = 3
 num-world-states = 10
 \end{verbatim}
+The number of available signals at the beginning of a game was always 1.
+More signals were then introduced after a certain amount of iterations---given by the parameter \code{signals-interval}---had passed.
+The values tested for \code{signals-interval} were 100, 200, 300, \ldots, 9800, 9900, 10000.
+For every value, 100 runs were performed.
 
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				xlabel={# of rounds between signal introductions},
+				ylabel={iterations until convergence},
+			]
+			\addplot+[mark=none] table {../data/PRE_intro_signals_medians.dat};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Effect of later signal introduction on convergence speed; x-axis indicates the number of iterations that passed before another signal was introduced; y-axis indicates the number of iterations until convergence}
+	\label{fig:sig}
+\end{figure}
 
 \section{Discussion}
 \label{sec:dis}
