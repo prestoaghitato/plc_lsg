@@ -239,21 +239,64 @@ num-world-states = 10
 \end{verbatim}
 The number of available signals at the beginning of a game was always 1.
 More signals were then introduced after a certain amount of iterations---given by the parameter \code{signals-interval}---had passed.
-The values tested for \code{signals-interval} were 100, 200, 300, \ldots, 9800, 9900, 10000.
+The values tested for \code{signals-interval} were 100, 200, 300, \ldots, 4000, 4100, 4200.
 For every value, 100 runs were performed.
+Figure~\ref{fig:sig} shows a somewhat dull linear relationship.
 
 \begin{figure}
 	\centering
 	\begin{tikzpicture}
 		\begin{axis}[
-				xlabel={# of rounds between signal introductions},
+				xlabel={\# of rounds between signal introductions},
 				ylabel={iterations until convergence},
 			]
-			\addplot+[mark=none] table {../data/PRE_intro_signals_medians.dat};
+			\addplot+[mark=none] table {../data/intro_signals_big_medians.dat};
 		\end{axis}
 	\end{tikzpicture}
 	\caption{Effect of later signal introduction on convergence speed; x-axis indicates the number of iterations that passed before another signal was introduced; y-axis indicates the number of iterations until convergence}
 	\label{fig:sig}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+				xlabel={iteration},
+				ylabel={communication quality},
+				legend entries={n~=~100, n~=~1000},
+				legend pos=north west,
+				ymax=1.14,
+			]
+			\addplot+[mark=none, very thin, color=gray] table {../data/plc_lsg_jump_4200_n100.dat};
+			\addplot+[mark=none, thick] table {../data/plc_lsg_jump_4200_n1000_simplified.dat};
+			\addplot+[nodes near coords, only marks, no marks, point meta=explicit symbolic, color=black] table [meta=label] {
+				x	y	label
+				0	0.4	\(1\)
+				4200	0.4 \(2\)
+				8400	0.4 \(3\)
+				12600	0.4 \(4\)
+				16800	0.4 \(5\)
+				21000	0.4 \(6\)
+				25200	0.4 \(7\)
+				29400	0.4 \(8\)
+				33600	0.4 \(9\)
+				37800	0.4 \(10\)
+			};
+			\draw [help lines, dashed]
+				(0,0) -- (0,1)
+				(4200,0) -- (4200,1)
+				(8400,0) -- (8400,1)
+				(12600,0) -- (12600,1)
+				(16800,0) -- (16800,1)
+				(21000,0) -- (21000,1)
+				(25200,0) -- (25200,1)
+				(29400,0) -- (29400,1)
+				(33600,0) -- (33600,1)
+				(37800,0) -- (37800,1);
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Communication quality in a game where new signals were introduced with a frequency of 1 signal per 4200 rounds played; x-axis indicates iterations, y axis indicates communication quality; grey line indicates a moving average over 100 rounds, red line a moving average over 1000 rounds; vertical dashed lines indicate when new signals were introduced. Notice how communication quality lingers somewhere around 0.1 until the seventh signal is introduced, where it suddenly increases dramatically.}
+	\label{fig:com}
 \end{figure}
 
 \section{Discussion}
