@@ -220,16 +220,16 @@ One would obviously expect this relation to be logarithmic, because for every pa
 				legend entries={mean, median},
 				ymax=10800,
 			]
-			\addplot+[mark=none] table {../data/population_size_mean.dat};
-			\addplot+[mark=none] table {../data/population_size_median.dat};
+			\addplot+[mark=none, color=lightgray] table {../data/population_size_mean.dat};
+			\addplot+[mark=none, color=blue] table {../data/population_size_median.dat};
 		\end{axis}
 	\end{tikzpicture}
 	\caption{Effect of population size on convergence speed; x-axis indicates population size, y-axis indicates mean and median number of iterations until convergence to perfect communication; the outlier not in view for a population size of 42 has a value of 14450.}
 	\label{fig:pop}
 \end{figure}
 
-\subsection{Introducing signals into an ongoing \lsg}
-\label{ssec:resint}
+\subsection{Introducing signals into an ongoing \lsg---macro}
+\label{ssec:resintmacro}
 A second experiment is concerned with the effects of delaying the introduction of signals into the game. The model was run with the following parameter settings:
 \begin{verbatim}
 population-size = 10
@@ -241,7 +241,13 @@ The number of available signals at the beginning of a game was always 1.
 More signals were then introduced after a certain amount of iterations---given by the parameter \code{signals-interval}---had passed.
 The values tested for \code{signals-interval} were 100, 200, 300, \ldots, 4000, 4100, 4200.
 For every value, 100 runs were performed.
+
 Figure~\ref{fig:sig} shows a somewhat dull linear relationship.
+This is, in hindsight, no surprise as figure~\ref{fig:pop} shows a convergence median of 4585 rounds for a population of size 10.
+Introducing signals to the game long after the 4585\textsuperscript{th} round has passed is bound to slow convergence down.
+The linear relationship one can see here is simply representing the linear fashion in which the value of \code{signals-interval} has been increased.
+A truly interesting result would be a later introduction of signals that speeds up median convergence speed, instead of slowing it down.
+In order to potentially produce such results it is necessary to zoom in and choose much smaller values for \code{signals-interval}.
 
 \begin{figure}
 	\centering
@@ -257,6 +263,11 @@ Figure~\ref{fig:sig} shows a somewhat dull linear relationship.
 	\label{fig:sig}
 \end{figure}
 
+But all is not lost.
+Figure~\ref{fig:com} shows how communication quality evolved along on of the games played as part of the second experiment, and brings much less expected results to light.
+In the game displayed, a new signal was introduced every 4200 rounds.
+One can see that communication quality remains close to 0.1 without significant variation up until around the 25000\textsuperscript{th} iteration.
+
 \begin{figure}
 	\centering
 	\begin{tikzpicture}
@@ -267,20 +278,20 @@ Figure~\ref{fig:sig} shows a somewhat dull linear relationship.
 				legend pos=north west,
 				ymax=1.14,
 			]
-			\addplot+[mark=none, very thin, color=gray] table {../data/plc_lsg_jump_4200_n100.dat};
-			\addplot+[mark=none, thick] table {../data/plc_lsg_jump_4200_n1000_simplified.dat};
+			\addplot+[mark=none, very thin, color=lightgray] table {../data/plc_lsg_jump_4200_n100.dat};
+			\addplot+[mark=none, thick, color=blue] table {../data/plc_lsg_jump_4200_n1000_simplified.dat};
 			\addplot+[nodes near coords, only marks, no marks, point meta=explicit symbolic, color=black] table [meta=label] {
 				x	y	label
-				0	0.4	\(1\)
-				4200	0.4 \(2\)
-				8400	0.4 \(3\)
-				12600	0.4 \(4\)
-				16800	0.4 \(5\)
-				21000	0.4 \(6\)
-				25200	0.4 \(7\)
-				29400	0.4 \(8\)
-				33600	0.4 \(9\)
-				37800	0.4 \(10\)
+				0	0.45	\(1\)
+				4200	0.45 \(2\)
+				8400	0.45 \(3\)
+				12600	0.45 \(4\)
+				16800	0.45 \(5\)
+				21000	0.45 \(6\)
+				25200	0.45 \(7\)
+				29400	0.45 \(8\)
+				33600	0.45 \(9\)
+				37800	0.45 \(10\)
 			};
 			\draw [help lines, dashed]
 				(0,0) -- (0,1)
@@ -298,6 +309,11 @@ Figure~\ref{fig:sig} shows a somewhat dull linear relationship.
 	\caption{Communication quality in a game where new signals were introduced with a frequency of 1 signal per 4200 rounds played; x-axis indicates iterations, y axis indicates communication quality; grey line indicates a moving average over 100 rounds, red line a moving average over 1000 rounds; vertical dashed lines indicate when new signals were introduced. Notice how communication quality lingers somewhere around 0.1 until the seventh signal is introduced, where it suddenly increases dramatically.}
 	\label{fig:com}
 \end{figure}
+
+
+\subsection{Introducing signals into an ongoing \lsg---micro}
+\label{ssec:resintmicro}
+
 
 \section{Discussion}
 \label{sec:dis}
