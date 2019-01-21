@@ -1,6 +1,10 @@
 % !TEX encoding = UTF-8 Unicode
 % !TEX TS-program = LuaLaTeX
-\documentclass[DIV=calc,BCOR=0mm,pagesize]{scrartcl}
+\documentclass[
+	DIV=calc,
+	BCOR=0mm,
+	pagesize,
+]{scrartcl}
 % [headinclude] includes header in Satzspiegelberechnung
 % [headlines] gives vsize of header, default is 1.25
 % [pagesize] ensures compatibility with PDF and DVI
@@ -44,10 +48,10 @@
 % Elements on page 60 of (German) KOMA manual
 %**************************************************
 
-
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\abm}{\textsc{abm}}
 \newcommand{\lsg}{\textsc{lsg}}
+\newcommand{\nslsg}[1]{\textit{#1}-state/\textit{#1}-term \lsg}
 \newcommand{\odd}{\textsc{odd}}
 \newcommand{\dash}{–}
 
@@ -168,7 +172,8 @@ The state of the world of a round is determined by randomly drawing a value from
 Furthermore, within one of the steps described in subsection \ref{ssec:modpro}, the order in which senders and receivers perform their actions is also randomised.
 
 \paragraph{Observation}
-A game is considered to converge to perfect communication if 100 consecutive rounds result in a communication quality >~0.8 within one million rounds.
+A game is considered to converge to perfect communication if \emph{the moving average (mean) of communication quality over the past 1000 rounds is > 0.8 for 100 consecutive rounds.}
+If this criterion is not met within one million rounds, then the game is considered to have failed to converge.
 The 0.8 threshold is in line with \citet[p.~533]{barrett_numerical_2006, barrett_dynamic_2007}.
 In \citet[sec.~2, unpaginated preprint]{barrett_numerical_2006}, the author states that ``After 10\textsuperscript{6} plays the ratio of successful actions to the number of plays, the signal success rate, is typically better than 0.999'', but leaves open how this is measured.
 In trial runs, the condition of 100 consecutive rounds has proven to be a reliable indicator for convergence and has therefore been chosen.
@@ -357,15 +362,105 @@ Unfortunately, testing the distribution of convergence speeds with \code{signals
 \end{figure}
 
 
-\subsection{Reproducing \citepos{barrett_numerica_2006} results}
+\subsection{Reproducing \citepos{barrett_numerical_2006} results}
 \label{ssec:resrep}
-\lipsum[0]
+Reproducing existing (and potentially widely established) results is always a desirous endeavour in empirical science.
+The present essay is by far not the first simulation approach to \lsg s, so this section aims to reproduce (or fail to reproduce) results existing in the literature.
 
+In \citet{barrett_numerical_2006}, the author introduces the notion of an \nslsg{n}, in which there are \textit{n} possible states of the world and \textit{n} possible actions the receiver may take.
+Via simulation, \citeauthor{barrett_numerical_2006} shows that \nslsg{2} always converge to perfect communication (strictly speaking a ratio of 0.999 converges), but that the the same is not true for \nslsg{3}s, \nslsg{4}s, and \nslsg{8}s.
+In his experiments, \citeauthor{barrett_numerical_2006} ran one thousand games each and then calculated the ratio of games that had converged to perfect communication.
+Table~\ref{tab:nstate} shows \citeauthor{barrett_numerical_2006}'s results compared to mine.
+While the results are identical for \nslsg{2}, the same is not true for other values of \textit{n.}
+In an effort to rule out chance as a possible cause for these vast discrepancies, I have rerun the experiment for \nslsg{2}s and performed 20000 games.
+But even this second, much longer, rerun resulted in a ratio of 0.9735 of games converging to perfect communication.
+
+\begin{table}
+	\centering
+	\begin{tabular}{l>{\addfontfeature{Numbers=Tabular}}c>{\addfontfeature{Numbers=Tabular}}c}
+		\toprule
+		model & \multicolumn{2}{c}{success rate}\\
+		\cmidrule(lr){2-3}
+		& \citeauthor{barrett_numerical_2006} & mine \\
+		\midrule
+		2-state/2-term & 0.999 & 0.999 \\
+		3-state/3-term & 0.096 & 0.974 \\
+		4-state/4-term & 0.219 & 0.933 \\
+		8-state/8-term & 0.594 & 1.000 \\
+		\bottomrule
+	\end{tabular}
+	\caption{Percentage of games leading to convergence in an \nslsg{n} with 1000 games played per run.}
+	\label{tab:nstate}
+\end{table}
+
+The other possible cause that comes to mind are subleties in the definition of convergence to perfect communication.
+\citet[sec.~2, unpaginated preprint]{barrett_numerical_2006} writes, that ``[o]ut of 10\textsuperscript{3} runs, there were three where the success rate was less than 0.8 after 10\textsuperscript{6} plays'' and further that ``[t]here are 10\textsuperscript{6} plays/run here, and a run is taken to fail to converge if the final signal success rate of the run is less than 0.8.''
+This leaves some room open for interpretation however.
+
+If \citeauthor{barrett_numerical_2006}'s words are to be taken literally, then the measure of convergence takes into account only the one millionth round and ignores everything that happened beforehand.
+But the variance of communication quality in between rounds is vast.
+In figure~\ref{fig:com}, the light grey line indicates a moving average over the past one hundred rounds played.
+Yet even this moving average shows drastic fluctuations, especially towards convergence where fluctuations reach an amplitude of about 0.1.
+A closer look at games failing to converge shows that this fluctuation does not stop, not even decrease, as the rounds progress.
+And again, the fluctuations visible in figure~\ref{fig:com} are of a moving average over the past one hundred rounds.
+The fluctuations in communication quality in each individual round are undoubtedly much higher.
+It therefore seems unreasonable that \citeauthor{barrett_numerical_2006} defines convergence in such a way that only a single round is taken into account.
+Chance would drastically influence the ratio of games converged, and this is surely not a desired characteristic for a metric.
+It could, however, potentially explain the much lower values of \citeauthor{barrett_numerical_2006}'s experiments.
+Many games that would be ruled out by chance when considering only a single round would pass the convergence test when looking at a moving average over the past one thousand rounds, as was the case in the present essay (for the precise definition employed here, see subsection~ref{ssec:moddes}, paragraph on observation).
+
+There is one more subtlety that needs to be mentioned here.
+For the experiments in table~\ref{tab:nstate} only, I have considered games as non-convergent if they had not converged by the 100000\textsuperscript{th} iteration; the simple reason being the amount of time the simulations took.
+But this cannot be the cause of the discrepancy for two reasons:
+First off, the amount of games ``incorrectly'' classified as non-convergent is in all probability very low.
+The median convergence time for all \nslsg s run is below two thousand, with no game having converged after more than thirty thousand iterations.
+Secondly, \emph{if} a game has been incorrectly classified as non-convergent, then this would of course distort the data but it would result in values \emph{lower} than the ones I was supposed to obtain.
+In other words, if at all influenced by substituting one hundred thousand for one million, then this inaccuracy has decreased the gap in table~\ref{tab:nstate}, not increased it.
+Therefore, it cannot possibly be an explanation for it.
+
+Nevertheless, despite the different ratios the key findings of \citet{barrett_numerical_2006} have been replicated.
+It is the case that \nslsg{2}s converge with a ratio of 0.999 and it is the case that \nslsg{n}s with \textit{n} > 2 do converge in some cases but do not converge in others.
+Another conclusion of \citet[sec.~2, unpaginated preprint]{barrett_numerical_2006} has also been reproduced: ``While failures to approach signaling systems were observed, each system always learned to do better than chance in signaling, and hence might be said to have developed a more or less effective language.''
+While the exact values of communication quality for non-convergent games has not been recorded for the present simulations, communication quality did always go above chance (with chance in an \nslsg{n} being equal to a ratio of \(\frac{1}{n}\)).
+
+\begin{table}
+	\centering
+	\begin{tabular}{rllrll}
+		\toprule
+		\multicolumn{3}{c}{\textsc{sender}} & \multicolumn{3}{c}{\textsc{receiver}} \\
+		\cmidrule(lr){1-3}\cmidrule(lr){4-6}
+		\# of balls & \citeauthor{barrett_numerical_2006} & mine & \# of balls & \citeauthor{barrett_numerical_2006} & mine \\
+		\midrule
+		\multicolumn{3}{c}{\emph{state \textsc{a} urn}} & \multicolumn{3}{c}{\emph{signal 0 urn}} \\
+		\cmidrule(lr){1-3}\cmidrule(lr){4-6}
+		signal 0 & 3      & 1      & act \textsc{a} & 3      & 1 \\
+		signal 1 & 333688 & 332968 & act \textsc{b} & 1      & 333599 \\
+		signal 2 & 2      & 1      & act \textsc{c} & 333141 & 1 \\
+		\midrule
+		\multicolumn{3}{c}{\emph{state \textsc{b} urn}} & \multicolumn{3}{c}{\emph{signal 1 urn}} \\
+		\cmidrule(lr){1-3}\cmidrule(lr){4-6}
+		signal 0 & 1      & 333601 & act \textsc{a} & 333688 & 332971 \\
+		signal 1 & 1      & 1      & act \textsc{b} & 1      & 1 \\
+		signal 2 & 332514 & 1      & act \textsc{c} & 4      & 1 \\
+		\midrule
+		\multicolumn{3}{c}{\emph{state \textsc{c} urn}} & \multicolumn{3}{c}{\emph{signal 2 urn}} \\
+		\cmidrule(lr){1-3}\cmidrule(lr){4-6}
+		signal 0 & 333141 & 1      & act \textsc{a} & 2      & 1 \\
+		signal 1 & 4      & 1      & act \textsc{b} & 332514 & 1 \\
+		signal 2 & 20     & 333299 & act \textsc{c} & 20     & 333298 \\
+		\bottomrule
+	\end{tabular}
+	\caption{caption}
+	\label{tab:urns}
+\end{table}
 
 \subsection{Concluding remarks}
 \label{ssec:rescon}
-\lipsum[0]
-
+The few simulations carried out in the previous subsections are of course only the tip of the iceberg of what the model is capable of.
+Throughout the simulations I have kept most of the parameters constant; not because I do not deem them useful, but simply because the time it takes to properly explore the model's entire parameter space is more adequately measured in days than hours.
+Consequently, the open space for further exploration of the model is vast.
+A desirable discovery would be parameter settings that speed up the convergence towards perfect communication.
+In the simulations performed, all parameter changes that deviated from the ``default'' have slowed down the convergence speed.
 
 \section{Discussion}
 \label{sec:dis}
