@@ -23,6 +23,7 @@
 \usepackage{enumitem}  % enumerate environment, custom list labels
 \usepackage{pgfplots}  % plot plots
 	\pgfplotsset{compat=1.15}  % newest version
+	\usepgfplotslibrary{groupplots}  % to group plots, surprisingly
 \usepackage{localextra}  % provides hyphenation for linguistic terms, names, etc.
 \usepackage{natbib}  % use Harvard citation style
 	\bibliographystyle{newharvard}
@@ -38,7 +39,8 @@
 % \addtokomafont{pageheadfoot}{\sffamily\upshape}  % example use
 % \setkomafont{author}{\sffamily\footnotesize}  % example use
 \addtokomafont{author}{\sffamily\addfontfeature{Style=Alternate}}
-\setkomafont{disposition}{\ttcdemibold\addfontfeature{Numbers=Lining}}
+\setkomafont{disposition}{\ttcdemibold}
+\addtokomafont{caption}{\footnotesize}
 % Elements on page 60 of (German) KOMA manual
 %**************************************************
 
@@ -47,6 +49,7 @@
 \newcommand{\abm}{\textsc{abm}}
 \newcommand{\lsg}{\textsc{lsg}}
 \newcommand{\odd}{\textsc{odd}}
+\newcommand{\dash}{–}
 
 \title{Influencing convergence speed in Lewis signalling games}
 \author{Marcel Ruland}
@@ -58,10 +61,10 @@
 
 \section{Introduction}
 \label{sec:int}
-A \emph{Lewis signalling game} (henceforth \lsg), following \citet[p.~530ff.]{barrett_dynamic_2007}, works as follows:
+\emph{Lewis signalling games} (henceforth \lsg) were first introduced by \citet{lewis_convention_1969}.
+Following \citet[p.~530~ff.]{barrett_dynamic_2007}, they works as follows:
 There is a set of states of the world \(S\), a set of signals (or terms) \(T\), and a set of acts \(A\).
-There is a mapping from acts to states of the world, such that every act corresponds to a state of the world.
-\citet{barrett_dynamic_2007} leaves unclear if that mapping must be bijective (for every \(a\) there is exactly one corresponding \(s\) and for every \(s\) there is at least one corresponding \(a\)), but every signalling game involved in this essay fulfils this condition.
+There is a mapping from acts to states of the world, such that every act corresponds to a state of the world.\footnote{\citet{barrett_dynamic_2007} leaves unclear if that mapping must be bijective (for every \(a\) there is exactly one corresponding \(s\) and for every \(s\) there is at least one corresponding \(a\)), but every signalling game involved in this essay fulfils this condition.}
 There is a \emph{sender}, who can observe the current state of the world and a \emph{receiver,} who cannot observe the current state of the world.
 In each round exactly one state of the world \(s \in S\) holds, i.e.~is the current state of the world.
 The sender will observe the current state of the world and then choose a signal \(t \in T\) and send it to the receiver.
@@ -136,21 +139,19 @@ At no other time do the receivers access the state of the world variable, thus n
 
 \subsection{Design concepts}
 \label{ssec:moddes}
-\subsubsection{Emergence}
+\paragraph{Emergence}
 The number one (and only) emergent behaviour predicted here is that of perfect communication.
 From an initially random distribution of chosen signals and chosen actions emerges (ideally) a perfect one-to-one mapping from states of the world to signals and to actions corresponding to the states of the world.
-\subsubsection{Adaptation}
-\label{sssec:moddesada}
+\paragraph{Adaptation}
 Senders have as many urns as there are possible states of the world.
 Receivers have as many urns as there are available signals.
 A sender chooses a signal by randomly drawing a ball from the urn corresponding to the current state of the world.
 A receiver chooses an action by randomly drawing a ball from the urn corresponding to the received signal.
 
-\subsubsection{Objectives}
+\paragraph{Objectives}
 Senders and receivers aim to maximise the percentage of rounds in which communication is successful, i.e.~in which the current state of the world matches the action chosen by the receiver.
 
-\subsubsection{Learning}
-\label{sssec:moddeslea}
+\paragraph{Learning}
 Senders start off with one ball corresponding to every possible signal in each of their urns.
 In a game with three possible states of the world and two available signals, the initial configuration will look like this: \code{[[0 1] [0 1] [0 1]]}
 Receivers start off with one ball corresponding to every possible action in each of their urns.
@@ -159,14 +160,14 @@ In case of success, senders and receivers will add more balls with the chosen si
 In case of failure, they will remove balls with the chosen signal/action.
 The number of added or removed balls is determined by the value of two parameters.
 
-\subsubsection{Prediction}
+\paragraph{Prediction}
 Agents cannot predict the future values of any variables.
 
-\subsubsection{Stochasticity}
+\paragraph{Stochasticity}
 The state of the world of a round is determined by randomly drawing a value from a uniform distribution.
 Furthermore, within one of the steps described in subsection \ref{ssec:modpro}, the order in which senders and receivers perform their actions is also randomised.
 
-\subsubsection{Observation}
+\paragraph{Observation}
 A game is considered to converge to perfect communication if 100 consecutive rounds result in a communication quality >~0.8 within one million rounds.
 The 0.8 threshold is in line with \citet[p.~533]{barrett_numerical_2006, barrett_dynamic_2007}.
 In \citet[sec.~2, unpaginated preprint]{barrett_numerical_2006}, the author states that ``After 10\textsuperscript{6} plays the ratio of successful actions to the number of plays, the signal success rate, is typically better than 0.999'', but leaves open how this is measured.
@@ -179,7 +180,7 @@ The model is initialised by creating a population, setting the number of availab
 \section{Results}
 \label{sec:res}
 The results section is focused on two main questions.
-The most obvious one, and the focus of subsection \ref{ssec:respop} is how population size influences convergence speed in an \lsg, as this parameter is the main novelty that \abm brings to the game.
+The most obvious one, and the focus of subsection \ref{ssec:respop} is how population size influences convergence speed in an \lsg, as this parameter is the main novelty that \abm\ brings to the game.
 A second question is the introduction of signals into an ongoing game.
 Subsection \ref{ssec:resint} investigates how beginning a game with just one signal, and then introducing more signals as the rounds progress, influences convergence speed.
 
@@ -194,9 +195,9 @@ num-world-states = 10
 \end{verbatim}
 \code{population-size} was incremented step-wise from 1, 2, 3, \ldots, 98, 99, 100 and ten runs were performed for every value.\footnote{10 runs are, admittedly, less than one would have liked given the extent of variation shown in figure ref{fig:pop}; unfortunately the complexity of running the model with high values of population-size was such that e.g. 100 runs for every value were just not feasible.}
 
-The value for num-add-balls may seem unusually high.
+The value for \code{num-add-balls} may seem unusually high.
 Small populations tend to not converge if the value for this parameter is too high, whereas large populations tend to not converge if it is too low.
-Assigning a value of 5 to num-add-balls has proven to reliably lead to convergence with smaller and larger populations.
+Assigning a value of 5 to \code{num-add-balls} has proven to reliably lead to convergence with smaller and larger populations.
 In fact, out of the one thousand runs for this experiment, only four runs did not converge within one million iterations.
 The respective population sizes were 3, 4, 12, and 48.
 
@@ -207,8 +208,8 @@ But as population size increases, the likelihood of being paired with the same s
 
 Figure \ref{fig:pop} shows the mean and median convergence speed for all values of \code{population-size} respectively.
 One can see that the mean values consistently are at least as high, but usually higher, than their median counterparts.
-This indicates rare runs with very late convergence, increasing the means more than the medians.
-Visually, the plot seems to affirm the predicted statistical relationship between the two variables and indeed there appears to be a correlation of R2 = 0.55.
+This indicates rare runs with very late convergence, increasing the means more than the medians.\footnote{All other experiments have shown similar characteristics with rare, high outliers. I have therefore decided to only consider medians as a measure of centrality from now on, which are much less affected by outliers as compared to means.}
+Visually, the plot seems to affirm the predicted statistical relationship between the two variables and indeed there appears to be a correlation of R\textsuperscript{2}~=~0.55.
 One would obviously expect this relation to be logarithmic, because for every pair added to the population the population grows by a factor of \(\frac{1}{n+1}\), but the simulation is not nearly extensive enough to affirm or deny this hypothesis.
 
 \begin{figure}
@@ -224,12 +225,13 @@ One would obviously expect this relation to be logarithmic, because for every pa
 			\addplot+[mark=none, color=blue] table {../data/population_size_median.dat};
 		\end{axis}
 	\end{tikzpicture}
-	\caption{Effect of population size on convergence speed; x-axis indicates population size, y-axis indicates mean and median number of iterations until convergence to perfect communication; the outlier not in view for a population size of 42 has a value of 14450.}
+	\caption{Effect of population size on convergence speed; x-axis indicates population size, y-axis indicates mean and median number of iterations until convergence to perfect communication; the outlier not in view for a population size of 42 has a value of 14450; R\textsuperscript{2}~=~0.55.}
 	\label{fig:pop}
 \end{figure}
 
-\subsection{Introducing signals into an ongoing \lsg---macro}
-\label{ssec:resintmacro}
+\subsection{Introducing signals into an ongoing \lsg}
+\label{ssec:resint}
+\subsubsection*{Macro scale}
 A second experiment is concerned with the effects of delaying the introduction of signals into the game. The model was run with the following parameter settings:
 \begin{verbatim}
 population-size = 10
@@ -238,11 +240,11 @@ num-add-balls = 3
 num-world-states = 10
 \end{verbatim}
 The number of available signals at the beginning of a game was always 1.
-More signals were then introduced after a certain amount of iterations---given by the parameter \code{signals-interval}---had passed.
+More signals were then introduced after a certain amount of iterations\dash given by the parameter \code{signals-interval}\dash had passed.
 The values tested for \code{signals-interval} were 100, 200, 300, \ldots, 4000, 4100, 4200.
 For every value, 100 runs were performed.
 
-Figure~\ref{fig:sig} shows a somewhat dull linear relationship.
+Figure~\ref{fig:sigmacro} shows a somewhat dull linear relationship (R\textsuperscript{2}~=~0.97).
 This is, in hindsight, no surprise as figure~\ref{fig:pop} shows a convergence median of 4585 rounds for a population of size 10.
 Introducing signals to the game long after the 4585\textsuperscript{th} round has passed is bound to slow convergence down.
 The linear relationship one can see here is simply representing the linear fashion in which the value of \code{signals-interval} has been increased.
@@ -256,17 +258,18 @@ In order to potentially produce such results it is necessary to zoom in and choo
 				xlabel={\# of rounds between signal introductions},
 				ylabel={iterations until convergence},
 			]
-			\addplot+[mark=none] table {../data/intro_signals_big_medians.dat};
+			\addplot+[mark=none] table {../data/plc_lsg-adding-signals-big-table_medians.dat};
 		\end{axis}
 	\end{tikzpicture}
-	\caption{Effect of later signal introduction on convergence speed; x-axis indicates the number of iterations that passed before another signal was introduced; y-axis indicates the number of iterations until convergence}
-	\label{fig:sig}
+	\caption{Effect of later signal introduction on convergence speed; x-axis indicates the number of iterations that passed before another signal was introduced; y-axis indicates the median number of iterations until convergence; R\textsuperscript{2}~=~0.97}
+	\label{fig:sigmacro}
 \end{figure}
 
 But all is not lost.
 Figure~\ref{fig:com} shows how communication quality evolved along on of the games played as part of the second experiment, and brings much less expected results to light.
 In the game displayed, a new signal was introduced every 4200 rounds.
 One can see that communication quality remains close to 0.1 without significant variation up until around the 25000\textsuperscript{th} iteration.
+Around this iteration, communication quality experiences a sudden increase.
 
 \begin{figure}
 	\centering
@@ -278,7 +281,7 @@ One can see that communication quality remains close to 0.1 without significant 
 				legend pos=north west,
 				ymax=1.14,
 			]
-			\addplot+[mark=none, very thin, color=lightgray] table {../data/plc_lsg_jump_4200_n100.dat};
+			\addplot+[mark=none, very thin, color=lightgray] table {../data/plc_lsg_jump_4200_n100_simplified.dat};
 			\addplot+[mark=none, thick, color=blue] table {../data/plc_lsg_jump_4200_n1000_simplified.dat};
 			\addplot+[nodes near coords, only marks, no marks, point meta=explicit symbolic, color=black] table [meta=label] {
 				x	y	label
@@ -306,19 +309,68 @@ One can see that communication quality remains close to 0.1 without significant 
 				(37800,0) -- (37800,1);
 		\end{axis}
 	\end{tikzpicture}
-	\caption{Communication quality in a game where new signals were introduced with a frequency of 1 signal per 4200 rounds played; x-axis indicates iterations, y axis indicates communication quality; grey line indicates a moving average over 100 rounds, red line a moving average over 1000 rounds; vertical dashed lines indicate when new signals were introduced. Notice how communication quality lingers somewhere around 0.1 until the seventh signal is introduced, where it suddenly increases dramatically.}
+	\caption{Communication quality in a game where new signals were introduced with a frequency of 1 signal per 4200 rounds played; x-axis indicates iterations, y axis indicates communication quality; grey line indicates a moving average over 100 rounds, red line a moving average over 1000 rounds; vertical dashed lines indicate when new signals were introduced; for simplicity only values for every 10\textsuperscript{th} round are shown. Notice how communication quality lingers somewhere around 0.1 until the seventh signal is introduced, where it suddenly increases dramatically.}
 	\label{fig:com}
 \end{figure}
 
 
-\subsection{Introducing signals into an ongoing \lsg---micro}
-\label{ssec:resintmicro}
+\subsubsection*{Micro scale}
+The model was run with the following parameters:
+\begin{verbatim}
+population-size = 1
+num-remove-balls = 1
+num-add-balls = 2
+num-world-states = 10
+\end{verbatim}
+\code{signals-interval} was again increased step-wise, but this time on much smaller scales.
+First, from 1 to 100, with 100 runs being performed for every value.
+Second, from 1 to 10, with 1000 runs being performed for every value.
+The results are plotted in figure~\ref{fig:sigmicro} on the left and right respectively.
+On the left-hand plot, a linear relation between signal introduction and convergence speed is once again visible.
+Statistics confirm this visual hunch with R\textsuperscript{2}~=~0.76.
+The right-hand plot shows a somewhat more interesting picture.
+The increase in convergence time experiences a drop for \code{signals-interval~=~7} that even goes below the convergence speed for \code{signals-interval~=~0} (i.e.~all signals are available from the beginning of the game on).
+Unfortunately, testing the distribution of convergence speeds with \code{signals-interval~=~7} for significantly low values against the distribution with \code{signals-interval~=~0} results in p~=~1.0 with both a Student-t test and a Wilcoxon signed-rank test (the latter does not assume the data to be normally distributed; for the data to be in fact pass tests of normality, e.g.~Shapiro-Wilk, one would have to exclude several high outliers).
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\begin{groupplot}[
+			group style={
+				group size=2 by 1,
+	            xlabels at=edge bottom,
+	            ylabels at=edge left,
+				horizontal sep=1.5cm,
+			},
+			width=0.5\textwidth,
+			xlabel={\code{signals-interval}},
+			ylabel={rounds until convergence},
+		]
+			\nextgroupplot
+				\addplot+[mark=none] table {../data/plc_lsg-adding-signals-small-table_medians.dat};
+			\nextgroupplot
+				\addplot+[mark=none] table {../data/plc_lsg-adding-signals-tiny-table_medians.dat};
+		\end{groupplot}
+	\end{tikzpicture}
+	\caption{Effects of later introduction of signals on a micro scale; x-axis indicates value of \code{signals-interval}, y-axis indicates median iterations until convergence to perfect communication. \emph{Left:} \code{signals-interval} incremented from 0 to 100 with 100 rounds played per value (a value of 0 indicating all signals being available from the beginning on), R\textsuperscript{2}~=~0.76. \emph{Right:} \code{signals-interval} incremented from 1 to 10 with 1000 rounds played per value, R\textsuperscript{2}~=~0.04.}
+	\label{fig:sigmicro}
+\end{figure}
+
+
+\subsection{Reproducing \citepos{barrett_numerica_2006} results}
+\label{ssec:resrep}
+\lipsum[0]
+
+
+\subsection{Concluding remarks}
+\label{ssec:rescon}
+\lipsum[0]
 
 
 \section{Discussion}
 \label{sec:dis}
 
 \citep{wilensky_netlogo_1999}
-\newpage\twocolumn\recalctypearea
+\newpage%\twocolumn\recalctypearea
 \bibliography{standard}  % insert bibliography
 \end{document}

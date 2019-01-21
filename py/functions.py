@@ -14,6 +14,12 @@ def calculate_medians(filename):
     df_medians.to_csv("df_medians.csv")
 
 
+def calculate_means(filename):
+    df = pd.read_csv(filename)
+    df_medians = df.groupby("signals-interval").mean()
+    df_medians.to_csv("df_means.csv")
+
+
 def simplify(filename, n):
     """
     keeps every n-th line in a file
