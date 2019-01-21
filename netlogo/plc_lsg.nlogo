@@ -63,11 +63,20 @@ to go
   ask senders [ learning ]
   ask receivers [ learning ]
   statistics
-  if pc-count = 100 [
-    set convergence-count ticks
+  if ticks = 1000000 [
+    file-open "sender_urns.txt"
+    ask sender 0 [ foreach urns [ urn -> file-print urn ] ]
+    file-close
+    file-open "receiver_urns.txt"
+    ask receiver 1 [ foreach urns [ urn -> file-print urn ] ]
+    file-close
     stop
-  ]  ; halt and drop everything if communication quality has been over 8 for 100 rounds
-  if ticks > 0 and add-signals? and ticks mod signals-interval = 0 [ add-signal ]
+  ]
+;  if pc-count = 100 [
+;    set convergence-count ticks
+;    stop
+;  ]  ; halt and drop everything if communication quality has been over 8 for 100 rounds
+;  if ticks > 0 and add-signals? and ticks mod signals-interval = 0 [ add-signal ]
   tick
 end
 
@@ -473,7 +482,7 @@ num-world-states
 num-world-states
 2
 10
-10.0
+3.0
 1
 1
 NIL
@@ -535,7 +544,7 @@ signals-interval
 signals-interval
 1
 100
-3.0
+1.0
 1
 1
 NIL
@@ -548,7 +557,7 @@ SWITCH
 108
 add-signals?
 add-signals?
-0
+1
 1
 -1000
 
@@ -899,24 +908,58 @@ NetLogo 6.0.4
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="temporary" repetitions="1000" runMetricsEveryStep="false">
+  <experiment name="2state-new" repetitions="1000" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
+    <timeLimit steps="100000"/>
     <metric>convergence-count</metric>
-    <enumeratedValueSet variable="num-signals">
+    <enumeratedValueSet variable="signals-interval">
       <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="add-signals?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-signals">
+      <value value="2"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="num-remove-balls">
       <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="num-add-balls">
-      <value value="2"/>
+      <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="population-size">
       <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="num-world-states">
-      <value value="10"/>
+      <value value="2"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="3state-new" repetitions="1000" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="100000"/>
+    <metric>convergence-count</metric>
+    <enumeratedValueSet variable="signals-interval">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="add-signals?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-signals">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-remove-balls">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-add-balls">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="population-size">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-world-states">
+      <value value="3"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
