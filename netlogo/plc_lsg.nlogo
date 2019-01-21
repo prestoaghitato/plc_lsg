@@ -10,6 +10,7 @@ globals [  ; commented out variables are sliders
 ;  num-world-states  ; number of possible world states
 ;  num-add-balls  ; number of balls to add to an urn on success
 ;  num-remove-balls  ; number of balls to remove from an urn on failure
+;  signals-interval  ; interval in which signals are added if add-signals? = true
 
   ;; turtle visual
   turtle-distance
@@ -23,6 +24,7 @@ globals [  ; commented out variables are sliders
   num-suc  ; list, how many pairs were successful in round i?
   pc-count  ; how many consecutive rounds with perfect communication?
   mov-avg-1000  ; moving average of communication quality over the last 1000 rounds
+  convergence-count  ; measure for BehaviorSpace
 ]
 
 senders-own [
@@ -61,7 +63,11 @@ to go
   ask senders [ learning ]
   ask receivers [ learning ]
   statistics
-  if pc-count = 100 [ stop ]  ; halt and drop everything if communication quality has been over 8 for 100 rounds
+  if pc-count = 100 [
+    set convergence-count ticks
+    stop
+  ]  ; halt and drop everything if communication quality has been over 8 for 100 rounds
+  if ticks > 0 and add-signals? and ticks mod signals-interval = 0 [ add-signal ]
   tick
 end
 
@@ -417,7 +423,7 @@ num-signals
 num-signals
 1
 10
-10.0
+3.0
 1
 1
 NIL
@@ -432,14 +438,14 @@ population-size
 population-size
 1
 100
-4.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-12
+454
 314
 1302
 633
@@ -519,6 +525,32 @@ NIL
 NIL
 NIL
 0
+
+SLIDER
+23
+281
+195
+314
+signals-interval
+signals-interval
+1
+100
+3.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+203
+75
+339
+108
+add-signals?
+add-signals?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -866,6 +898,28 @@ NetLogo 6.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="temporary" repetitions="1000" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>convergence-count</metric>
+    <enumeratedValueSet variable="num-signals">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-remove-balls">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-add-balls">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="population-size">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-world-states">
+      <value value="10"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
