@@ -24,7 +24,7 @@
 \usepackage{lipsum}  % blind text
 \usepackage{tabularx}  % more spacing options for tables
 \usepackage{booktabs}  % improved tables
-\usepackage{enumitem}  % enumerate environment, custom list labels
+\usepackage[inline]{enumitem}  % enumerate environment, custom list labels
 \usepackage{pgfplots}  % plot plots
 	\pgfplotsset{compat=1.15}  % newest version
 	\usepgfplotslibrary{groupplots}  % to group plots, surprisingly
@@ -77,7 +77,7 @@ A round is won if the act \(a\) matches the current state of the world \(s\) and
 Both sender and receiver know about whether the round was a success or a failure and adapt their strategies for choosing signals and acts according to some learning function.
 Commonly, states of the world are distributed uniformly and sender and receiver start out with randomly choosing a signal and an act respectively, but this is not a formal requirement for the game to count as an \lsg.
 
-\emph{Agent-based modelling} (henceforth \abm) is a modelling paradigm that has its roots in cellular automata and complexity theory \citep{heath_some_2014}.
+\emph{Agent-based modelling} (henceforth \abm\footnote{I use the abbreviation \abm\ to either refer to one specific agent-based model or to the modelling paradigm of agent-based modelling as a whole. It always becomes clear from context, which of the two terms is meant.}) is a modelling paradigm that has its roots in cellular automata and complexity theory \citep{heath_some_2014}.
 Following \citet{grimm_individual_2005,railsback_agent_2011} in an \abm, there are individual \emph{agents} representing individual entities of one or several kinds (such as for instance cars, sheep, or viruses).
 These entities interact with each other, with an \emph{environment,} or (typically) both.
 The environment itself has characteristics which influence the agents.
@@ -95,11 +95,30 @@ The model, described in detail in section \ref{sec:mod}, has some functionality 
 
 \section{Model description}
 \label{sec:mod}
-The description of the model follows the \emph{Overview, Design concepts, and Details} protocol \citep[][henceforth \odd]{grimm_standard_2006, grimm_odd_2010}.
+Replication of previous results is one of the core foundations of empirical science.
+Yet one of the main challenges of \abm\ remains to be replicability.
+Small implementational details, which may elude the programmers' attention during the entire modelling process, can lead to emergent behaviour or prevent it from happening.
+It is therefore essential that models be described in such a way that they can be replicated in great detail and their results be reproduced successfully.
+For this purpose, \citet{grimm_standard_2006, grimm_odd_2010} have developed the \emph{Overview, Design concepts, and Details} protocol (henceforth \odd), whose purpose is to establish a standard for describing \abm s in the scientific literature across disciplines.
+
+In my description, I follow the \odd\, which is subdivided into the following subsections, which I describe one after the other:
+\begin{enumerate*}
+	\item Purpose
+	\item Entities, state variables, and scales
+	\item Process overview and scheduling
+	\item Design concepts
+	\item Initialisation
+\end{enumerate*}
+I acknowledge that for a relatively simple model as the one described here, this paradigm may be a bit over the top.
+Yet I prefer being too explicit to being too vague.
+The model has been implemented in Netlogo \citep{wilensky_netlogo_1999} and the entire source code is available at
+\url{https://github.com/prestoaghitato/plc_lsg/blob/master/netlogo/plc_lsg.nlogo}
 
 \subsection{Purpose}
 \label{ssec:modpur}
-The model is run to understand how, based on elapsed time and/or quality of communication, increasing the number of symbols available in an \lsg\ accelerates or slows down convergence towards perfect communication.
+The model is run to understand how \lsg s are influenced by various parameters such as number of signals, states of the world, and actions.
+The main goal during implementation was to look at how convergence speed towards perfect communication is influenced by delaying the introduction of signals into an ongoing game, but it can easily be used to investigate other parameters.
+Possible extensions include implementing different learning functions or making the number of possible states of the world and the number of available actions separate parameters.
 
 \subsection{Entities, state variables, and scales}
 \label{ssec:modent}
@@ -161,7 +180,8 @@ In a game with three possible states of the world and two available signals, the
 Receivers start off with one ball corresponding to every possible action in each of their urns.
 In the same game, their initial urn configuration looks as follows: \code{[[1 2 3] [1 2 3]]}
 In case of success, senders and receivers will add more balls with the chosen signal/action to the consulted urn.
-In case of failure, they will remove balls with the chosen signal/action.
+In case of failure, they will remove balls with the chosen signal/action, but \emph{only} under the condition that after having removed the balls, there remains at least one ball with the given signal/action so that no signal or action can be removed from the game entirely.
+If, for example, a sender has four balls with signal 2 on them and is required to remove five balls of that kind, he will only remove three so that one ball with signal 2 remains in the urn.
 The number of added or removed balls is determined by the value of two parameters.
 
 \paragraph{Prediction}
@@ -377,13 +397,13 @@ But even this second, much longer, rerun resulted in a ratio of 0.9735 of games 
 
 \begin{table}
 	\centering
-	\begin{tabular}{l>{\addfontfeature{Numbers=Tabular}}c>{\addfontfeature{Numbers=Tabular}}c}
+	\begin{tabular}{c>{\addfontfeature{Numbers=Tabular}}c>{\addfontfeature{Numbers=Tabular}}c}
 		\toprule
-		model & \multicolumn{2}{c}{success rate}\\
+		& \multicolumn{2}{c}{success rate}\\
 		\cmidrule(lr){2-3}
-		& \citeauthor{barrett_numerical_2006} & mine \\
+		model & \citeauthor{barrett_numerical_2006} & mine \\
 		\midrule
-		2-state/2-term & 0.999 & 0.999 \\
+		2-state/2-term & 1.000 & 0.999 \\
 		3-state/3-term & 0.096 & 0.974 \\
 		4-state/4-term & 0.219 & 0.933 \\
 		8-state/8-term & 0.594 & 1.000 \\
@@ -407,7 +427,7 @@ The fluctuations in communication quality in each individual round are undoubted
 It therefore seems unreasonable that \citeauthor{barrett_numerical_2006} defines convergence in such a way that only a single round is taken into account.
 Chance would drastically influence the ratio of games converged, and this is surely not a desired characteristic for a metric.
 It could, however, potentially explain the much lower values of \citeauthor{barrett_numerical_2006}'s experiments.
-Many games that would be ruled out by chance when considering only a single round would pass the convergence test when looking at a moving average over the past one thousand rounds, as was the case in the present essay (for the precise definition employed here, see subsection~ref{ssec:moddes}, paragraph on observation).
+Many games that would be ruled out by chance when considering only a single round would pass the convergence test when looking at a moving average over the past one thousand rounds, as was the case in the present essay (for the precise definition employed here, see paragraph on observation in subsection~ref{ssec:moddes}).
 
 There is one more subtlety that needs to be mentioned here.
 For the experiments in table~\ref{tab:nstate} only, I have considered games as non-convergent if they had not converged by the 100000\textsuperscript{th} iteration; the simple reason being the amount of time the simulations took.
@@ -450,11 +470,24 @@ While the exact values of communication quality for non-convergent games has not
 		signal 2 & 20     & 333299 & act \textsc{c} & 20     & 333298 \\
 		\bottomrule
 	\end{tabular}
-	\caption{caption}
+	\caption{Contents of the sender's and the receiver's urn in an \nslsg{3} after one million iterations in \citepos{barrett_numerical_2006} and my own simulations respectively.}
 	\label{tab:urns}
 \end{table}
 
-\subsection{Concluding remarks}
+Other results of \citet{barrett_numerical_2006} have also been reliably reproduced.
+Table~\ref{tab:urns} shows the contents of both the sender's and the receiver's urn in an \nslsg{3} after one million iterations.
+In both \citeauthor{barrett_numerical_2006}'s and my case a near-perfect signalling system has emerged.
+Note that the important characteristic here is the fact that in every urn the vast majority of balls correspond to the same signal or action.
+Which of the urns has converged to which signal or action is in principle irrelevant as long as the mapping from states of the world to signals to actions to states of the world is correct.
+A signalling system does not intrinsically distinguish between signal 0 and signal 1 or action \textsc{a} and action \textsc{b}.
+
+There is again, however, a subtle difference in the results of table~\ref{tab:urns}.
+Notice how in \citeauthor{barrett_numerical_2006}'s urns, the number of balls not corresponding to the most frequent signal or action is sometimes 1 but sometimes slightly higher than 1.
+In contrast, the number of balls not corresponding to the most frequent signal or action in the urns of the present simulation is always 1.
+Although the precise cause of this difference has eluded me, it may be hinting at why \citeauthor{barrett_numerical_2006}'s simulations converged so much less than mine.
+1 is in fact the lowest value attainable in the data, because the learning function is defined in such a way that at least one ball with a given signal or action always remains in the urn (see paragraph on learning in subsection~\ref{ssec:moddes}), and can therefore practically be read as zero.
+
+\section{Conclusion}
 \label{ssec:rescon}
 The few simulations carried out in the previous subsections are of course only the tip of the iceberg of what the model is capable of.
 Throughout the simulations I have kept most of the parameters constant; not because I do not deem them useful, but simply because the time it takes to properly explore the model's entire parameter space is more adequately measured in days than hours.
@@ -462,10 +495,9 @@ Consequently, the open space for further exploration of the model is vast.
 A desirable discovery would be parameter settings that speed up the convergence towards perfect communication.
 In the simulations performed, all parameter changes that deviated from the ``default'' have slowed down the convergence speed.
 
-\section{Discussion}
-\label{sec:dis}
+The unsuccessful attempts to reproduce results in the previous section are in all probability caused by a subtle implementational detail, that differs between \citepos{barrett_numerical_2006} and my implementation.
+But without a detailed implementation description of \citepos{barrett_numerical_2006} model, which his papers lack, finding said detail is almost an impossible feat.
 
-\citep{wilensky_netlogo_1999}
 \newpage%\twocolumn\recalctypearea
 \bibliography{standard}  % insert bibliography
 \end{document}
