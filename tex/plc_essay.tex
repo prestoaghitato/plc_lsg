@@ -4,6 +4,7 @@
 	DIV=calc,
 	BCOR=0mm,
 	pagesize,
+	titlepage
 ]{scrartcl}
 % [headinclude] includes header in Satzspiegelberechnung
 % [headlines] gives vsize of header, default is 1.25
@@ -19,7 +20,7 @@
 \usepackage[usenames,dvipsnames]{xcolor}  % required for custom colours
 \usepackage{amsmath,amssymb}  % better maths support & more symbols
 \usepackage{microtype}  % improved typography
-\usepackage[singlespacing]{setspace}  % improved linespacing
+\usepackage[onehalfspacing]{setspace}  % improved linespacing
 \usepackage{url}  % typeset url's
 \usepackage{lipsum}  % blind text
 \usepackage{tabularx}  % more spacing options for tables
@@ -33,19 +34,11 @@
 	\bibliographystyle{newharvard}
 %**************************************************
 
-%*******************KOMA-Options*******************
-% \KOMAoptions{parskip=half,headsepline,footsepline}  % example use
-% [parskip=half] separates subsections by 0.5 lines
-% [headsepline,headtopline,footsepline] put lines after header & before footer <-- does NOT work with \pagestyle{plain.scrheadings}
-%**************************************************
 
 %**************Customise Font Formats**************
-% \addtokomafont{pageheadfoot}{\sffamily\upshape}  % example use
-% \setkomafont{author}{\sffamily\footnotesize}  % example use
 \addtokomafont{author}{\sffamily\addfontfeature{Style=Alternate}}
 \setkomafont{disposition}{\ttcdemibold}
 \addtokomafont{caption}{\footnotesize}
-% Elements on page 60 of (German) KOMA manual
 %**************************************************
 
 \newcommand{\code}[1]{\texttt{#1}}
@@ -53,55 +46,64 @@
 \newcommand{\lsg}{\textsc{lsg}}
 \newcommand{\nslsg}[1]{\textit{#1}-state/\textit{#1}-term \lsg}
 \newcommand{\odd}{\textsc{odd}}
-\newcommand{\dash}{–}
+\newcommand{\dash}{—}
 
-\title{Influencing convergence speed in Lewis signalling games}
+\subject{Universitat de Barcelona}
+\title{An agent-based model for Lewis signalling games}
+\subtitle{Final essay in \emph{Philosophy of language and cognition}}
 \author{Marcel Ruland}
-\date{hand-in date: \today}  % omit date
+\date{hand-in date: \today \\ Word count: 5447}
+\publishers{Instructor: Manolo Martínez}
 
 \begin{document}
 \maketitle
 \tableofcontents
+\newpage
 
 \section{Introduction}
 \label{sec:int}
-\emph{Lewis signalling games} (henceforth \lsg) were first introduced by \citet{lewis_convention_1969}.
-Following \citet[p.~530~ff.]{barrett_dynamic_2007}, they works as follows:
+\emph{Lewis signalling games} (henceforth \lsg), first introduced by \citet{lewis_convention_1969}, are abstract games which allow for a signalling language to eventually emerge from initially random signals.
+Following \citet[p.~530~ff.]{barrett_dynamic_2007}, an \lsg works as follows:
 There is a set of states of the world \(S\), a set of signals (or terms) \(T\), and a set of acts \(A\).
-There is a mapping from acts to states of the world, such that every act corresponds to a state of the world.\footnote{\citet{barrett_dynamic_2007} leaves unclear if that mapping must be bijective (for every \(a\) there is exactly one corresponding \(s\) and for every \(s\) there is at least one corresponding \(a\)), but every signalling game involved in this essay fulfils this condition.}
+There is a mapping from acts to states of the world, such that every act corresponds to one state of the world.\footnote{\citet{barrett_dynamic_2007} leaves unclear if that mapping necessarily has to be bijective (i.e.~for every \(a\) there is exactly one corresponding \(s\) and for every \(s\) there is at least one corresponding \(a\)), but every signalling game involved in this essay fulfils this condition.}
 There is a \emph{sender}, who can observe the current state of the world and a \emph{receiver,} who cannot observe the current state of the world.
 In each round exactly one state of the world \(s \in S\) holds, i.e.~is the current state of the world.
 The sender will observe the current state of the world and then choose a signal \(t \in T\) and send it to the receiver.
-The receiver will observe the signal and then perform an act \(a \in A\).
-A round is won if the act \(a\) matches the current state of the world \(s\) and lost if it does not.
-Both sender and receiver know about whether the round was a success or a failure and adapt their strategies for choosing signals and acts according to some learning function.
+The receiver will observe the signal sent by the sender and then choose an act \(a \in A\) to perform.
+An iteration is won if the act \(a\) matches the current state of the world \(s\) and lost if it does not.
+Both the sender and the receiver know whether the previous iteration was a success or a failure and adapt their strategies for choosing signals and acts according to some learning function.
 Commonly, states of the world are distributed uniformly and sender and receiver start out with randomly choosing a signal and an act respectively, but this is not a formal requirement for the game to count as an \lsg.
 
-\emph{Agent-based modelling} (henceforth \abm\footnote{I use the abbreviation \abm\ to either refer to one specific agent-based model or to the modelling paradigm of agent-based modelling as a whole. It always becomes clear from context, which of the two terms is meant.}) is a modelling paradigm that has its roots in cellular automata and complexity theory \citep{heath_some_2014}.
+A note on terminology: For the scope of this essay, I refer to one cycle of new-state-of-the-world \(\rightarrow\) sender-chooses-signal \(\rightarrow\) receiver-chooses-action \(\rightarrow\) communication-succeeds-or-fails as an \emph{iteration.}
+Many iterations one after the other up until some stopping condition is met is referred to as a \emph{game.}
+Many games played under the same conditions one after the other, which may then be used to measure some average metric, are referred to as a \emph{run.}
+
+\emph{Agent-based modelling} (henceforth \abm\footnote{I use the abbreviation \abm\ to refer either to one specific agent-based model or to the modelling paradigm of agent-based modelling as a whole. However, it always becomes clear from context, which of the two terms is meant.}) is a fairly recent modelling paradigm that has its roots in cellular automata and complexity theory \citep{heath_some_2014}.
+The general conceptual thought behind \abm\ is to model the behaviour of entities in an environment.
 Following \citet{grimm_individual_2005,railsback_agent_2011} in an \abm, there are individual \emph{agents} representing individual entities of one or several kinds (such as for instance cars, sheep, or viruses).
 These entities interact with each other, with an \emph{environment,} or (typically) both.
 The environment itself has characteristics which influence the agents.
-It can play a major role in the simulation (such as a forest providing food and shelter to a population of animals) or be virtually inexistent (as is the case in the present essay, see section~\ref{sec:mod}).
-Typical applications include (but are by far not limited to) the simulation of traffic flow in a road network, spreading of a virus in a population (human or non-human), and changes in real estate prices in a city.
-The strength of \abm, in comparison to other modelling paradigms, is that  by modelling each individual agent, one can observe how the sum of individual actions of agents give rise to phenomena which were not explicitly programmed into the model (such as the creation of ant corridors, which are not intentionally created by any individual ant, but are a byproduct of the fact that ants directly follow each other in straight lines, \citet{wilensky_netlogo_1997}).
+It can play a major role in the simulation (such as a forest providing food, shelter, and other things to a population of animals) or be virtually inexistent and reduced to a simple integer variable (as is the case in the present essay, see section~\ref{sec:mod}).
+Typical applications include (but are by far not limited to) the simulation of traffic flow in a road network, spreading of a virus in a population of organisms, and changes in real estate prices in a city.
+The strength of \abm, in comparison to other modelling paradigms, is that  by modelling each individual agent, one can observe how the sum of individual actions of agents give rise to phenomena which were not explicitly programmed into the model (such as the creation of ant corridors, which are not intentionally created by any individual ant, but are a byproduct of the fact that ants directly follow each other in straight lines, \citet{wilensky_netlogo_1997}), so-called emergent behaviour.
 
-This essay combines both paradigms.
-An \abm\ will be created where there is a population of senders and a population of receivers.
+This essay aims to combine both paradigms.
+An \abm\ modelling a \lsg\ will be created where there is a population of senders and a population of receivers.
 Initially the number of signals available will be less than the number of states of the world and actions, but will be increased with time.
-The aim is to determine how the time at or the condition on which more symbols will be made available influences the speed of convergence towards \emph{perfect communication.}
+The aim is to determine how delaying the introduction of signals into the game influences the speed of convergence towards \emph{perfect communication.}
 Perfect communication in an \lsg\ is achieved if ``each state of the world corresponds to a term in the language and each term corresponds to an act that matches the state of the world, so each signal leads to a successful action'' \citep[p.~530, there referred to as ``perfect Lewis signalling system'']{barrett_dynamic_2007}.
-The model, described in detail in section \ref{sec:mod}, has some functionality for choosing parameters which will not be used in this essay, for simple reasons of scope.
+The model, described in detail in section \ref{sec:mod}, has quite some functionality for choosing parameters which will not be used in this essay, for simple reasons of scope.
 
 
 \section{Model description}
 \label{sec:mod}
 Replication of previous results is one of the core foundations of empirical science.
 Yet one of the main challenges of \abm\ remains to be replicability.
-Small implementational details, which may elude the programmers' attention during the entire modelling process, can lead to emergent behaviour or prevent it from happening.
+The smallest implementational details, which may elude the programmers' attention during the entire modelling process, can lead to emergent behaviour or just as well prevent it from forming.
 It is therefore essential that models be described in such a way that they can be replicated in great detail and their results be reproduced successfully.
-For this purpose, \citet{grimm_standard_2006, grimm_odd_2010} have developed the \emph{Overview, Design concepts, and Details} protocol (henceforth \odd), whose purpose is to establish a standard for describing \abm s in the scientific literature across disciplines.
+For this purpose, \citet{grimm_standard_2006, grimm_odd_2010} have developed the \emph{Overview, Design concepts, and Details} protocol (henceforth \odd), whose purpose is to establish a standard for describing \abm s in the scientific literature across disciplines and which has received several extensions since \citep[e.g.][for models involving human decision making]{muller_describing_2013}.
 
-In my description, I follow the \odd\, which is subdivided into the following subsections, which I describe one after the other:
+In my description of the model, I follow the \odd\, which is subdivided into the following subsections, which I describe one after the other:
 \begin{enumerate*}
 	\item Purpose
 	\item Entities, state variables, and scales
@@ -109,79 +111,92 @@ In my description, I follow the \odd\, which is subdivided into the following su
 	\item Design concepts
 	\item Initialisation
 \end{enumerate*}
-I acknowledge that for a relatively simple model as the one described here, this paradigm may be a bit over the top.
+I acknowledge that for a relatively simple model as the one described here, this exploiting the entire \odd\ standard may be a bit over the top.
 Yet I prefer being too explicit to being too vague.
 The model has been implemented in Netlogo \citep{wilensky_netlogo_1999} and the entire source code is available at
 \url{https://github.com/prestoaghitato/plc_lsg/blob/master/netlogo/plc_lsg.nlogo}
 
 \subsection{Purpose}
 \label{ssec:modpur}
-The model is run to understand how \lsg s are influenced by various parameters such as number of signals, states of the world, and actions.
-The main goal during implementation was to look at how convergence speed towards perfect communication is influenced by delaying the introduction of signals into an ongoing game, but it can easily be used to investigate other parameters.
+The model is run to understand how \lsg s are influenced by various parameters such as number of signals, number of states of the world, number of actions, or population size of senders and receivers.
+The main goal during implementation was to look at how convergence speed towards perfect communication is influenced by delaying the introduction of signals into an ongoing game, but the model can easily be used to investigate other parameters.
 Possible extensions include implementing different learning functions or making the number of possible states of the world and the number of available actions separate parameters.
 
 \subsection{Entities, state variables, and scales}
 \label{ssec:modent}
-There are two entities, \code{senders} and \code{receivers}, the populations of which are equal in size.
-The \code{senders} have two state variables.
-\code{urns} is a list of integer lists for implementing the urns in an urn learning function, see subsubsection \ref{sssec:moddeslea}.
+There are two main kinds of entities, \code{senders} and \code{receivers}, the populations of which are equal in size.
+To be precise, there is a third kind of entity involved in the model: the link.
+However, the purpose of links differs drastically from that of senders and receivers and their description is therefore held separately from that of senders and receivers.
+The \code{senders} have two state variables: \code{urns} and \code{chosen-signal}.
+\code{urns} is a list of integer lists for implementing the urns in an urn learning function, see paragraph on learning in subsection \ref{ssec:moddes}.
 Every nested list represents one urn, the integers within it represent balls to be drawn from it.
-\code{chosen-signal} is an integer corresponding to the signal the sender will send in the current round.
+\code{chosen-signal} is an integer corresponding to the signal the sender will send in the current iteration.
+
 \code{receivers} are structured almost identically.
-The urns are also lists of integer lists, but are structured differently (see again subsubsection \ref{sssec:moddeslea}).
+The urns are also lists of integer lists, but are structured differently (see again paragraph on learning in subsection \ref{ssec:moddes}).
 Instead of a \code{chosen-signal} variable, they have a \code{chosen-action} variable.
 In addition, they also have a \code{received-signal} variable, which stores the signal received from a sender.
-Senders and receivers are connected by \code{links}, which carry a signal in their \code{signal} variable.
-This \code{signal} variable can be read only by the sender and the receiver corresponding to the link.
+
+Senders and receivers are connected by \code{links}, which carry a signal in their \code{signal} variable, their sole state variable.\footnote{Strictly speaking, a link also stores information on which two agents it connects in its \code{end1} and \code{end2} variables. In Netlogo, links are a primitive kind of agent so these connections were not explicitly programmed into the links when writing the model. Agents in Netlogo have many other default state-variables which play no role whatsoever in this model.}
+This \code{signal} variable can be read only by the sender and the receiver connected to the link.
 The environment is simply a state of the world, implemented as a global integer variable, and nothing else.
 The following parameters of the model can be modified:
 \begin{itemize}
-	\item number of possible states of the world (the number of possible actions is always equal to this value)
-	\item number of available signals
-	\item population size (equal for senders and receivers)
-	\item number of balls added in case of success
-	\item number of balls removed in case of failure
+	\item number of possible states of the world (the number of possible actions is always equal to this value)\dash \code{num-world-states}
+	\item number of available signals\dash \code{num-signals}
+	\item population size (equal for senders and receivers)\dash \code{population-size}
+	\item number of balls added in case of success\dash \code{num-add-balls}
+	\item number of balls removed in case of failure\dash \code{num-remove-balls}
 \end{itemize}
+Furthermore, an interval \textit{n} can be given such that after \textit{n} iterations a new signal is introduced into the ongoing game (parameter \code{signals-interval}).
+This mechanism is optional and can be switched off entirely.
 
 \subsection{Process overview and scheduling}
 \label{ssec:modpro}
 Every iteration begins with randomly choosing a state of the world and creating a randomised one-to-one mapping from senders to receivers.
-Links are then created and connected to senders and receivers according to this mapping.
+Links are then created and connected to senders and receivers according to this random mapping.
 Senders have access to the state of the world and choose a signal based on it, which they then pass on to their respective link.
 Once the links carry the sent signal, receivers have access to it and read it.
 They choose an action based on the received signal and check whether the action matches the state of the world.
 Receivers then pass on an arbitrary, conventional value (here 42) on to the links, which the receivers can read and interpret as \emph{success.}
-Lastly, senders and receivers run a learning function according to whether the round was a success or a failure.
+Lastly, senders and receivers run a learning function according to whether the last iteration was a success or a failure.
 
-The reader will notice that the previous paragraph seems to contradict the above given definition for an \lsg.
+The careful reader will notice that the previous paragraph seems to contradict the above given definition for an \lsg.
 Receivers cannot observe the state of the world, yet in this model description it is the receivers who check whether their performed action corresponds to the current state of the world.
 While this may seem a violation of the rules of an \lsg, it is in fact not.
-Once signals and actions have been chosen, the simplest way of implementing the passing on of the correct success/failure information to the correct senders/receivers just happened to be letting the receivers check the global state of the world variable and then informing the correct senders via the still-existent links.
-At no other time do the receivers access the state of the world variable, thus not violating the definition of an \lsg.
- 
+Once signals and actions have been chosen, the simplest way of implementing the passing on of the correct success/failure information to the correct senders/receivers just happened to be having the receivers themselves check the global state of the world variable and then informing their corresponding senders via the still existent links.
+At no other time do the receivers access the state of the world variable, thus not violating the theoretical definition of an \lsg.
 
 \subsection{Design concepts}
 \label{ssec:moddes}
 \paragraph{Emergence}
 The number one (and only) emergent behaviour predicted here is that of perfect communication.
-From an initially random distribution of chosen signals and chosen actions emerges (ideally) a perfect one-to-one mapping from states of the world to signals and to actions corresponding to the states of the world.
+From an initially random distribution of chosen signals and chosen actions emerges (ideally) a perfect one-to-one mapping from states of the world to signals, from signals to actions, and from actions to states of the world, such that every performed act corresponds to the current state of the world.
+
 \paragraph{Adaptation}
 Senders have as many urns as there are possible states of the world.
 Receivers have as many urns as there are available signals.
 A sender chooses a signal by randomly drawing a ball from the urn corresponding to the current state of the world.
 A receiver chooses an action by randomly drawing a ball from the urn corresponding to the received signal.
+Initially, every sender's urn contains exactly one ball corresponding to every possible state of the world and every receiver's urn contains exactly one ball corresponding to every available action.
 
 \paragraph{Objectives}
-Senders and receivers aim to maximise the percentage of rounds in which communication is successful, i.e.~in which the current state of the world matches the action chosen by the receiver.
+Senders and receivers aim to maximise the percentage of iterations in which communication is successful, i.e.~in which the current state of the world matches the action chosen by the receiver.
+They do so by running a learning function after every iteration, described in the following paragraph.
 
 \paragraph{Learning}
-Senders start off with one ball corresponding to every possible signal in each of their urns.
+The implemented learning function is the urn learning function as described in \citet[sec.~2, unpaginated preprint]{barrett_numerical_2006}.
+Senders start off with one ball corresponding to every possible signal in each of their urns and as many urns as there are possible states of the world.
 In a game with three possible states of the world and two available signals, the initial configuration will look like this: \code{[[0 1] [0 1] [0 1]]}
-Receivers start off with one ball corresponding to every possible action in each of their urns.
-In the same game, their initial urn configuration looks as follows: \code{[[1 2 3] [1 2 3]]}
+For senders, each of their urns corresponds to one state of the world (bijective mapping) and they will always consult the urn corresponding to the current state of the world.
+
+Receivers start off with one ball corresponding to every possible action in each of their urns and as many urns as there are signals available to the senders.
+In the same game (three possible states of the world, two available signals), their initial urn configuration looks as follows: \code{[[1 2 3] [1 2 3]]}
+For receivers, each of their urns corresponds to one available signal (bijective mapping) and they will always consult the urn corresponding to the received signal.
+
 In case of success, senders and receivers will add more balls with the chosen signal/action to the consulted urn.
 In case of failure, they will remove balls with the chosen signal/action, but \emph{only} under the condition that after having removed the balls, there remains at least one ball with the given signal/action so that no signal or action can be removed from the game entirely.
-If, for example, a sender has four balls with signal 2 on them and is required to remove five balls of that kind, he will only remove three so that one ball with signal 2 remains in the urn.
+If, for example, a sender has four balls with signal 2 in the consulted urn and is required by its learning function to remove five balls of that kind, he will only remove three so that one ball with signal 2 remains in the urn.
 The number of added or removed balls is determined by the value of two parameters.
 
 \paragraph{Prediction}
@@ -189,53 +204,61 @@ Agents cannot predict the future values of any variables.
 
 \paragraph{Stochasticity}
 The state of the world of a round is determined by randomly drawing a value from a uniform distribution.
-Furthermore, within one of the steps described in subsection \ref{ssec:modpro}, the order in which senders and receivers perform their actions is also randomised.
+Furthermore, within each of the steps described in subsection \ref{ssec:modpro}, the order in which senders and receivers perform their actions is also randomised.
 
 \paragraph{Observation}
-A game is considered to converge to perfect communication if \emph{the moving average (mean) of communication quality over the past 1000 rounds is > 0.8 for 100 consecutive rounds.}
+A game is considered to have converged to perfect communication if \emph{the moving average (mean) of communication quality over the past 1000 rounds is > 0.8 for 100 consecutive rounds.}
+Communication quality here refers to the percentage of sender-receiver pairs that have managed to communicate successfully in an iteration.
 If this criterion is not met within one million rounds, then the game is considered to have failed to converge.
-The 0.8 threshold is in line with \citet[p.~533]{barrett_numerical_2006, barrett_dynamic_2007}.
-In \citet[sec.~2, unpaginated preprint]{barrett_numerical_2006}, the author states that ``After 10\textsuperscript{6} plays the ratio of successful actions to the number of plays, the signal success rate, is typically better than 0.999'', but leaves open how this is measured.
+The 0.8 ratio threshold is in line with \citet[p.~533]{barrett_numerical_2006, barrett_dynamic_2007}.
+In \citet[sec.~2, unpaginated preprint]{barrett_numerical_2006}, the author states that ``[a]fter 10\textsuperscript{6} plays the ratio of successful actions to the number of plays, the signal success rate, is typically better than 0.999'', but is not precise in how exactly this is measured (see subsection~\ref{ssec:resrep}).
 In trial runs, the condition of 100 consecutive rounds has proven to be a reliable indicator for convergence and has therefore been chosen.
 
 \subsection{Initialisation}
 \label{ssec:modini}
-The model is initialised by creating a population, setting the number of available actions equal to the number of possible world states, and resetting the counter keeping track of the number of rounds played.
+The model is initialised by creating a population of senders and receivers with urns in initial configuration (see paragraph on learning in subsection~\ref{ssec:moddes}), setting the number of available actions equal to the number of possible states of the world, and resetting the counter keeping track of the number of iterations played.
 
 \section{Results}
 \label{sec:res}
-The results section is focused on two main questions.
-The most obvious one, and the focus of subsection \ref{ssec:respop} is how population size influences convergence speed in an \lsg, as this parameter is the main novelty that \abm\ brings to the game.
-A second question is the introduction of signals into an ongoing game.
-Subsection \ref{ssec:resint} investigates how beginning a game with just one signal, and then introducing more signals as the rounds progress, influences convergence speed.
+The results section is subdivided into three main parts.
+The first two parts focus each on one of two obvious questions the model brings with it.
+A parameter not included in traditional \lsg s is that of population size.
+Having more than one speaker or receiver appears to be a novelty and therefore naturally invites investigation.
+The influence of this new parameter on convergence speed is the object of interest for subsection~\ref{ssec:respop}.
+The second intuitive object of inquiry is the introduction of new signals as the iterations of a game progress.
+Subsection~\ref{ssec:resint} deals with this parameter.
+The third subsection is a little different in nature.
+Here, I aim to reproduce some of the empirical results of \citet{barrett_numerical_2006}.
+Replication of the results is not successful in all cases, although a number of core findings hold in both data sets.
 
 \subsection{Population size}
 \label{ssec:respop}
-In the first experiment, to investigate the effect of population size on convergence speed, the model was run with the following parameter settings:
+In a first experiment, to investigate the effect of population size on convergence speed, the model was run with the following parameter settings:
 \begin{verbatim}
 num-signals = 10
 num-remove-balls = 1
 num-add-balls = 5
 num-world-states = 10
 \end{verbatim}
-\code{population-size} was incremented step-wise from 1, 2, 3, \ldots, 98, 99, 100 and ten runs were performed for every value.\footnote{10 runs are, admittedly, less than one would have liked given the extent of variation shown in figure ref{fig:pop}; unfortunately the complexity of running the model with high values of population-size was such that e.g. 100 runs for every value were just not feasible.}
+\code{population-size} was incremented step-wise from 1, 2, 3, \ldots, 98, 99, 100 and ten games were performed for every value.\footnote{10 games are, admittedly, less than one would have liked given the extent of variation shown in figure~\ref{fig:pop}; unfortunately the complexity of running the model with high values for population-size was such that performing e.g. 100 games for every value were just not feasible.}
 
-The value for \code{num-add-balls} may seem unusually high.
-Small populations tend to not converge if the value for this parameter is too high, whereas large populations tend to not converge if it is too low.
-Assigning a value of 5 to \code{num-add-balls} has proven to reliably lead to convergence with smaller and larger populations.
-In fact, out of the one thousand runs for this experiment, only four runs did not converge within one million iterations.
-The respective population sizes were 3, 4, 12, and 48.
+The value chosen for \code{num-add-balls} may seem unusually high, but this is motivated as follows.
+Small populations tend to not converge if the value for this parameter is too high (close to 10), whereas large populations tend to not converge if it is too low (close to 1).
+Non-convergent games are of little interest when one's aim is to investigate convergence speed.
+Assigning a value of 5 to \code{num-add-balls} has proven to reliably lead to convergence with both smaller and larger populations.
+In fact, out of the one thousand games run for this experiment, only four games did not converge within one million iterations.
+The respective population sizes of those four games were 3, 4, 12, and 48.
 
-The predicted result here is that with increasing population size the number of iterations until convergence will also increase.
-If a given sender and a given receiver are paired in the random mapping and communicate successfully, then they will adapt their strategies only to each other.
-This is not an issue if population size is equal to one, because the same sender and receiver will be paired over and over again.
-But as population size increases, the likelihood of being paired with the same sender/receiver decreases and therefore iterations are needed not only for convention to emerge within a single pair but within many pairs and eventually across an entire population.
+The predicted result for this simulation is that with increasing population size the average number of iterations until convergence will also increase.
+If a given sender and a given receiver are paired in the random mapping and communicate successfully, then they will adapt their strategies only to each other, but not to the rest of the population.
+This is quite obviously not an issue if population size is equal to one, because the same sender and receiver will be paired over and over again.
+But as population size increases, the likelihood of being paired with the same sender or receiver decreases and therefore iterations are needed not only for convention to emerge within a single pair but within many pairs and eventually across an entire population.
 
-Figure \ref{fig:pop} shows the mean and median convergence speed for all values of \code{population-size} respectively.
-One can see that the mean values consistently are at least as high, but usually higher, than their median counterparts.
-This indicates rare runs with very late convergence, increasing the means more than the medians.\footnote{All other experiments have shown similar characteristics with rare, high outliers. I have therefore decided to only consider medians as a measure of centrality from now on, which are much less affected by outliers as compared to means.}
-Visually, the plot seems to affirm the predicted statistical relationship between the two variables and indeed there appears to be a correlation of R\textsuperscript{2}~=~0.55.
-One would obviously expect this relation to be logarithmic, because for every pair added to the population the population grows by a factor of \(\frac{1}{n+1}\), but the simulation is not nearly extensive enough to affirm or deny this hypothesis.
+Figure \ref{fig:pop} shows the mean and median convergence speeds for all values of \code{population-size} respectively.
+One can see that the mean values consistently are always at least as high, but usually higher, than their median counterparts.
+This indicates rare runs with very late convergence, increasing the means more than the medians.\footnote{All other experiments have shown similar characteristics with rare and high outliers. I have therefore decided to only consider medians as a measure of centrality from now on, which are much less affected by outliers as compared to means.}
+Visually, the plot seems to affirm the predicted statistical relationship between the two variables and indeed there appears to be a positive correlation of R\textsuperscript{2}~=~0.55.
+One would expect this relation to be logarithmic, because for every pair added to the population the population grows by a factor of \(\frac{1}{n+1}\) (\textit{n} being the population size), but the simulation is not nearly extensive enough to affirm or deny this hypothesis.
 
 \begin{figure}
 	\centering
@@ -250,28 +273,32 @@ One would obviously expect this relation to be logarithmic, because for every pa
 			\addplot+[mark=none, color=blue] table {../data/population_size_median.dat};
 		\end{axis}
 	\end{tikzpicture}
-	\caption{Effect of population size on convergence speed; x-axis indicates population size, y-axis indicates mean and median number of iterations until convergence to perfect communication; the outlier not in view for a population size of 42 has a value of 14450; R\textsuperscript{2}~=~0.55.}
+	\caption{Effect of population size on convergence speed; x-axis indicates population size, y-axis indicates mean and median number of iterations until convergence to perfect communication; the outlier not in view for a population size of 42 has a value of 14450; R\textsuperscript{2}~=~0.55 for median values.}
 	\label{fig:pop}
 \end{figure}
 
 \subsection{Introducing signals into an ongoing \lsg}
 \label{ssec:resint}
+The simulations in this subsection are concerned with the effects of delaying the introduction of signals into the game.
+This has been done on both a macro and a micro scale.
+A look at the results of the first, larger scale (which was consequently dubbed macro scale) has shown that the intervals chosen for the parameter \code{signals-interval} were simply much too high to result in producing any interesting effects whatsoever.
+
 \subsubsection*{Macro scale}
-A second experiment is concerned with the effects of delaying the introduction of signals into the game. The model was run with the following parameter settings:
+In the first run, the model was initialised with the following parameter settings:
 \begin{verbatim}
 population-size = 10
+num-world-states = 10
+num-signals = 1
 num-remove-balls = 1
 num-add-balls = 3
-num-world-states = 10
 \end{verbatim}
-The number of available signals at the beginning of a game was always 1.
 More signals were then introduced after a certain amount of iterations\dash given by the parameter \code{signals-interval}\dash had passed.
 The values tested for \code{signals-interval} were 100, 200, 300, \ldots, 4000, 4100, 4200.
-For every value, 100 runs were performed.
+For every value of the parameter, one hundred games were performed.
 
 Figure~\ref{fig:sigmacro} shows a somewhat dull linear relationship (R\textsuperscript{2}~=~0.97).
-This is, in hindsight, no surprise as figure~\ref{fig:pop} shows a convergence median of 4585 rounds for a population of size 10.
-Introducing signals to the game long after the 4585\textsuperscript{th} round has passed is bound to slow convergence down.
+This is, in hindsight, no surprise as figure~\ref{fig:pop} shows a convergence median of 4585 games for a population of size 10.
+Introducing signals into the game long after the 4585\textsuperscript{th} round has passed is bound to slow convergence down.
 The linear relationship one can see here is simply representing the linear fashion in which the value of \code{signals-interval} has been increased.
 A truly interesting result would be a later introduction of signals that speeds up median convergence speed, instead of slowing it down.
 In order to potentially produce such results it is necessary to zoom in and choose much smaller values for \code{signals-interval}.
@@ -286,15 +313,18 @@ In order to potentially produce such results it is necessary to zoom in and choo
 			\addplot+[mark=none] table {../data/plc_lsg-adding-signals-big-table_medians.dat};
 		\end{axis}
 	\end{tikzpicture}
-	\caption{Effect of later signal introduction on convergence speed; x-axis indicates the number of iterations that passed before another signal was introduced; y-axis indicates the median number of iterations until convergence; R\textsuperscript{2}~=~0.97}
+	\caption{Effect of delayed introduction of signals on convergence speed; x-axis indicates the number of iterations that passed before another signal was introduced (value of \code{signals-interval}; y-axis indicates the median number of iterations until convergence; R\textsuperscript{2}~=~0.97}
 	\label{fig:sigmacro}
 \end{figure}
 
-But all is not lost.
+Nevertheless these first simulations may show to provide some interesting data.
 Figure~\ref{fig:com} shows how communication quality evolved along on of the games played as part of the second experiment, and brings much less expected results to light.
 In the game displayed, a new signal was introduced every 4200 rounds.
 One can see that communication quality remains close to 0.1 without significant variation up until around the 25000\textsuperscript{th} iteration.
 Around this iteration, communication quality experiences a sudden increase.
+This is strikingly different from games that start out with all signals available from the beginning.
+In those canonical games typically, communication quality typically also increases in a sigmoid pattern\footnote{I.e.\ starting with a low increase, which then gets higher and then lower again, resulting in an \textit{S}-like shape as visible in the figure.}, but not nearly as pronounced as shown in figure~\ref{fig:com}.
+In fact, the sigmoid curves of canonical games are at times so flat that one might mistake them for linear straights.
 
 \begin{figure}
 	\centering
@@ -304,7 +334,7 @@ Around this iteration, communication quality experiences a sudden increase.
 				ylabel={communication quality},
 				legend entries={n~=~100, n~=~1000},
 				legend pos=north west,
-				ymax=1.14,
+				ymax=1.115,
 			]
 			\addplot+[mark=none, very thin, color=lightgray] table {../data/plc_lsg_jump_4200_n100_simplified.dat};
 			\addplot+[mark=none, thick, color=blue] table {../data/plc_lsg_jump_4200_n1000_simplified.dat};
@@ -334,13 +364,21 @@ Around this iteration, communication quality experiences a sudden increase.
 				(37800,0) -- (37800,1);
 		\end{axis}
 	\end{tikzpicture}
-	\caption{Communication quality in a game where new signals were introduced with a frequency of 1 signal per 4200 rounds played; x-axis indicates iterations, y axis indicates communication quality; grey line indicates a moving average over 100 rounds, red line a moving average over 1000 rounds; vertical dashed lines indicate when new signals were introduced; for simplicity only values for every 10\textsuperscript{th} round are shown. Notice how communication quality lingers somewhere around 0.1 until the seventh signal is introduced, where it suddenly increases dramatically.}
+	\caption{Communication quality in a game where new signals were introduced with a frequency of 1 signal per 4200 rounds played; x-axis indicates iterations, y axis indicates communication quality; grey line indicates a moving average over 100 rounds, blue line a moving average over 1000 rounds; vertical dashed lines indicate introduction of a new signal; to keep the size of the pdf graphic in check, only values for every 10\textsuperscript{th} iteration are shown. Notice how communication quality lingers somewhere around 0.1 until the seventh signal is introduced, where it suddenly increases dramatically.}
 	\label{fig:com}
 \end{figure}
 
+What may be a cause of this behaviour?
+When new signals are introduced into an ongoing game, then upon introduction every sender receives one ball corresponding to the new signal into each of their urns and every receiver receives a new urn with ordinary initial configuration corresponding to the new signal.
+Somehow this mechanism seems to have disrupted emerging communication for a good thirty thousand iterations, but then communication emerges suddenly and rapidly even though new signals keep being introduced to the game up until the 42000\textsuperscript{th} iteration\dash even after the game has passed the convergence threshold.
+To seriously investigate this phenomenon, it is most likely necessary to keep track of the contents of every urn and develop several useful metrics to capture the effects of signal introduction.
+While possible in principle, collecting such data and implementing such metrics is beyond the scope of this essay.
+
 
 \subsubsection*{Micro scale}
-The model was run with the following parameters:
+The linear relationship of figure~\ref{fig:sigmacro} has proven to be of little interest.
+In a second set of simulations the values chosen for \code{signals-interval} were much smaller.
+The following values are those with which the model was run:
 \begin{verbatim}
 population-size = 1
 num-remove-balls = 1
@@ -348,14 +386,14 @@ num-add-balls = 2
 num-world-states = 10
 \end{verbatim}
 \code{signals-interval} was again increased step-wise, but this time on much smaller scales.
-First, from 1 to 100, with 100 runs being performed for every value.
-Second, from 1 to 10, with 1000 runs being performed for every value.
-The results are plotted in figure~\ref{fig:sigmicro} on the left and right respectively.
-On the left-hand plot, a linear relation between signal introduction and convergence speed is once again visible.
-Statistics confirm this visual hunch with R\textsuperscript{2}~=~0.76.
+First, from 1 to 100 (with one hundred games being performed for every value) and then secondly from 1 to 10 (with one thousand games being performed for every value).
+The results are plotted on the left and right hand side of figure~\ref{fig:sigmicro} respectively.
+
+On the left plot, a linear relation between signal introduction and convergence speed is once again visible.
+Statistics affirm this visual hunch with R\textsuperscript{2}~=~0.76.
 The right-hand plot shows a somewhat more interesting picture.
-The increase in convergence time experiences a drop for \code{signals-interval~=~7} that even goes below the convergence speed for \code{signals-interval~=~0} (i.e.~all signals are available from the beginning of the game on).
-Unfortunately, testing the distribution of convergence speeds with \code{signals-interval~=~7} for significantly low values against the distribution with \code{signals-interval~=~0} results in p~=~1.0 with both a Student-t test and a Wilcoxon signed-rank test (the latter does not assume the data to be normally distributed; for the data to be in fact pass tests of normality, e.g.~Shapiro-Wilk, one would have to exclude several high outliers).
+The increase in convergence time experiences a drop for \code{signals-interval~=~7} that goes even below the convergence speed for \code{signals-interval~=~0} (i.e.~all signals are available from the beginning of the game on).
+Unfortunately, testing the distribution of convergence speeds with \code{signals-interval~=~7} for significantly low values against the distribution with \code{signals-interval~=~0} results in p~=~1.0 with both a Student-t test and a Wilcoxon signed-rank test (the latter does not assume the data to be normally distributed; some high outliers would in fact have to be excluded for the data to pass tests of normality, e.g.~Shapiro-Wilk).
 
 \begin{figure}
 	\centering
@@ -377,19 +415,19 @@ Unfortunately, testing the distribution of convergence speeds with \code{signals
 				\addplot+[mark=none] table {../data/plc_lsg-adding-signals-tiny-table_medians.dat};
 		\end{groupplot}
 	\end{tikzpicture}
-	\caption{Effects of later introduction of signals on a micro scale; x-axis indicates value of \code{signals-interval}, y-axis indicates median iterations until convergence to perfect communication. \emph{Left:} \code{signals-interval} incremented from 0 to 100 with 100 rounds played per value (a value of 0 indicating all signals being available from the beginning on), R\textsuperscript{2}~=~0.76. \emph{Right:} \code{signals-interval} incremented from 1 to 10 with 1000 rounds played per value, R\textsuperscript{2}~=~0.04.}
+	\caption{Effects of later introduction of signals on a micro scale; x-axis indicates value of \code{signals-interval}, y-axis indicates median iterations until convergence to perfect communication. \emph{Left:} \code{signals-interval} incremented from 0 to 100 with 100 games played per value (a value of 0 indicating all signals being available from the beginning on), R\textsuperscript{2}~=~0.76. \emph{Right:} \code{signals-interval} incremented from 1 to 10 with 1000 games played per value, R\textsuperscript{2}~=~0.04.}
 	\label{fig:sigmicro}
 \end{figure}
 
 
-\subsection{Reproducing \citepos{barrett_numerical_2006} results}
+\subsection{Reproducing results by \citet{barrett_numerical_2006}}
 \label{ssec:resrep}
 Reproducing existing (and potentially widely established) results is always a desirous endeavour in empirical science.
-The present essay is by far not the first simulation approach to \lsg s, so this section aims to reproduce (or fail to reproduce) results existing in the literature.
+The present essay is by far not the first simulation approach to \lsg s, so this section aims to reproduce (or fail to reproduce) results already existing in the literature.
 
-In \citet{barrett_numerical_2006}, the author introduces the notion of an \nslsg{n}, in which there are \textit{n} possible states of the world and \textit{n} possible actions the receiver may take.
-Via simulation, \citeauthor{barrett_numerical_2006} shows that \nslsg{2} always converge to perfect communication (strictly speaking a ratio of 0.999 converges), but that the the same is not true for \nslsg{3}s, \nslsg{4}s, and \nslsg{8}s.
-In his experiments, \citeauthor{barrett_numerical_2006} ran one thousand games each and then calculated the ratio of games that had converged to perfect communication.
+In \citet{barrett_numerical_2006}, the author introduces the notion of an \nslsg{n}, in which there are \textit{n} possible states of the world and \textit{n} possible actions the receiver may choose to perform.
+Via simulation, \citeauthor{barrett_numerical_2006} shows that \nslsg{2} always converge to perfect communication, but that the the same is not true for \nslsg{3}s, \nslsg{4}s, and \nslsg{8}s (or in all probability any values for \textit{n}~>~2).
+In his experiments, \citeauthor{barrett_numerical_2006} ran one thousand games for every value of \textit{n} and then calculated the ratio of games that had converged to perfect communication.
 Table~\ref{tab:nstate} shows \citeauthor{barrett_numerical_2006}'s results compared to mine.
 While the results are identical for \nslsg{2}, the same is not true for other values of \textit{n.}
 In an effort to rule out chance as a possible cause for these vast discrepancies, I have rerun the experiment for \nslsg{2}s and performed 20000 games.
@@ -397,23 +435,23 @@ But even this second, much longer, rerun resulted in a ratio of 0.9735 of games 
 
 \begin{table}
 	\centering
-	\begin{tabular}{c>{\addfontfeature{Numbers=Tabular}}c>{\addfontfeature{Numbers=Tabular}}c}
+	\begin{tabular}{c>{\addfontfeature{Numbers=Tabular}}c>{\addfontfeature{Numbers=Tabular}}c>{\addfontfeature{Numbers=Tabular}}c}
 		\toprule
 		& \multicolumn{2}{c}{success rate}\\
 		\cmidrule(lr){2-3}
-		model & \citeauthor{barrett_numerical_2006} & mine \\
+		model & \citeauthor{barrett_numerical_2006} & mine & difference \\
 		\midrule
-		2-state/2-term & 1.000 & 0.999 \\
-		3-state/3-term & 0.096 & 0.974 \\
-		4-state/4-term & 0.219 & 0.933 \\
-		8-state/8-term & 0.594 & 1.000 \\
+		2-state/2-term & 1.000 & 0.999 & - 0.001\\
+		3-state/3-term & 0.096 & 0.974 & + 0.878\\
+		4-state/4-term & 0.219 & 0.933 & + 0.714\\
+		8-state/8-term & 0.594 & 1.000 & + 0.406\\
 		\bottomrule
 	\end{tabular}
-	\caption{Percentage of games leading to convergence in an \nslsg{n} with 1000 games played per run.}
+	\caption{Percentage of games leading to convergence in an \nslsg{n} with 1000 games played per run; values for \citepos{barrett_numerical_2006} and my own simulations respectively.}
 	\label{tab:nstate}
 \end{table}
 
-The other possible cause that comes to mind are subleties in the definition of convergence to perfect communication.
+Another possible cause besides chance that comes to mind are subtleties in the definition of convergence to perfect communication.
 \citet[sec.~2, unpaginated preprint]{barrett_numerical_2006} writes, that ``[o]ut of 10\textsuperscript{3} runs, there were three where the success rate was less than 0.8 after 10\textsuperscript{6} plays'' and further that ``[t]here are 10\textsuperscript{6} plays/run here, and a run is taken to fail to converge if the final signal success rate of the run is less than 0.8.''
 This leaves some room open for interpretation however.
 
@@ -425,7 +463,7 @@ A closer look at games failing to converge shows that this fluctuation does not 
 And again, the fluctuations visible in figure~\ref{fig:com} are of a moving average over the past one hundred rounds.
 The fluctuations in communication quality in each individual round are undoubtedly much higher.
 It therefore seems unreasonable that \citeauthor{barrett_numerical_2006} defines convergence in such a way that only a single round is taken into account.
-Chance would drastically influence the ratio of games converged, and this is surely not a desired characteristic for a metric.
+Chance would drastically influence the ratio of games that converge, and this is surely not a desired characteristic for a metric.
 It could, however, potentially explain the much lower values of \citeauthor{barrett_numerical_2006}'s experiments.
 Many games that would be ruled out by chance when considering only a single round would pass the convergence test when looking at a moving average over the past one thousand rounds, as was the case in the present essay (for the precise definition employed here, see paragraph on observation in subsection~ref{ssec:moddes}).
 
@@ -470,7 +508,7 @@ While the exact values of communication quality for non-convergent games has not
 		signal 2 & 20     & 333299 & act \textsc{c} & 20     & 333298 \\
 		\bottomrule
 	\end{tabular}
-	\caption{Contents of the sender's and the receiver's urn in an \nslsg{3} after one million iterations in \citepos{barrett_numerical_2006} and my own simulations respectively.}
+	\caption{Contents of the sender's and the receiver's urns in a \nslsg{3} after one million iterations in \citepos{barrett_numerical_2006} and my own simulations respectively.}
 	\label{tab:urns}
 \end{table}
 
@@ -489,15 +527,15 @@ Although the precise cause of this difference has eluded me, it may be hinting a
 
 \section{Conclusion}
 \label{ssec:rescon}
-The few simulations carried out in the previous subsections are of course only the tip of the iceberg of what the model is capable of.
+The few simulations carried out in the previous section are of course only the tip of the iceberg of what the model is capable of.
 Throughout the simulations I have kept most of the parameters constant; not because I do not deem them useful, but simply because the time it takes to properly explore the model's entire parameter space is more adequately measured in days than hours.
 Consequently, the open space for further exploration of the model is vast.
 A desirable discovery would be parameter settings that speed up the convergence towards perfect communication.
 In the simulations performed, all parameter changes that deviated from the ``default'' have slowed down the convergence speed.
 
-The unsuccessful attempts to reproduce results in the previous section are in all probability caused by a subtle implementational detail, that differs between \citepos{barrett_numerical_2006} and my implementation.
-But without a detailed implementation description of \citepos{barrett_numerical_2006} model, which his papers lack, finding said detail is almost an impossible feat.
+The unsuccessful attempts to reproduce some of the results of \citet{barrett_numerical_2006} are in all probability caused by a subtle implementational detail, that differs between \citeauthor{barrett_numerical_2006}'s and my implementation.
+But without a detailed description of \citepos{barrett_numerical_2006} model, which his papers lack, finding said detail is almost an impossible feat.
 
-\newpage%\twocolumn\recalctypearea
+\newpage\twocolumn\recalctypearea
 \bibliography{standard}  % insert bibliography
 \end{document}
