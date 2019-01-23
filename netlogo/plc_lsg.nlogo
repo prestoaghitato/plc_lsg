@@ -63,20 +63,20 @@ to go
   ask senders [ learning ]
   ask receivers [ learning ]
   statistics
-  if ticks = 1000000 [
-    file-open "sender_urns.txt"
-    ask sender 0 [ foreach urns [ urn -> file-print urn ] ]
-    file-close
-    file-open "receiver_urns.txt"
-    ask receiver 1 [ foreach urns [ urn -> file-print urn ] ]
-    file-close
-    stop
-  ]
-;  if pc-count = 100 [
-;    set convergence-count ticks
+;  if ticks = 1000000 [
+;    file-open "sender_urns.txt"
+;    ask sender 0 [ foreach urns [ urn -> file-print urn ] ]
+;    file-close
+;    file-open "receiver_urns.txt"
+;    ask receiver 1 [ foreach urns [ urn -> file-print urn ] ]
+;    file-close
 ;    stop
-;  ]  ; halt and drop everything if communication quality has been over 8 for 100 rounds
-;  if ticks > 0 and add-signals? and ticks mod signals-interval = 0 [ add-signal ]
+;  ]
+  if pc-count = 100 [
+    set convergence-count ticks
+    stop
+  ]  ; halt and drop everything if communication quality has been over 8 for 100 rounds
+  if ticks > 0 and add-signals? and ticks mod signals-interval = 0 [ add-signal ]
   tick
 end
 
@@ -432,7 +432,7 @@ num-signals
 num-signals
 1
 10
-3.0
+10.0
 1
 1
 NIL
@@ -482,7 +482,7 @@ num-world-states
 num-world-states
 2
 10
-3.0
+10.0
 1
 1
 NIL
@@ -497,7 +497,7 @@ num-add-balls
 num-add-balls
 0
 10
-2.0
+3.0
 1
 1
 NIL
